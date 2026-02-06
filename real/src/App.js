@@ -115,8 +115,13 @@ function App() {
     
     if (filtered.length === 0) {
       addMessage(
-        "I couldn't find any properties matching those specific criteria. 😕\n\nWould you like to:\n• Adjust your requirements\n• See all available properties\n• List your own property",
-        'bot'
+        "I couldn't find any properties matching those specific criteria. 😕",
+        'bot',
+        [
+          { label: '🔍 See All Properties', value: 'Show me all properties' },
+          { label: '🏠 List Property', value: 'I want to list my property' },
+          { label: '❓ Help', value: 'How does this work?' }
+        ]
       );
       return;
     }
@@ -161,7 +166,24 @@ function App() {
   const handlePropertySubmission = async (formData) => {
     setShowPropertyForm(false);
     setPropertyData(formData);
-    
+
+    // Add submitted property to available properties so it's searchable
+    const newProperty = {
+      id: Date.now(),
+      type: formData.type,
+      price: formData.price,
+      location: formData.location,
+      description: formData.description,
+      amenities: formData.amenities,
+      ownerName: formData.ownerName,
+      contactNumber: formData.contactNumber || '',
+      images: formData.images,
+      video: formData.video,
+      status: 'pending',
+      timestamp: new Date().toISOString()
+    };
+    setAvailableProperties(prev => [...prev, newProperty]);
+
     addMessage("✅ Property details received!", 'bot');
     
     await simulateTyping(1500);
@@ -185,8 +207,13 @@ Your property listing has been forwarded to the owner for approval. You'll recei
     
     await simulateTyping(2000);
     addMessage(
-      "Would you like to:\n• List another property\n• Check listing status\n• Speak to an agent",
-      'bot'
+      "What would you like to do next?",
+      'bot',
+      [
+        { label: '🏠 List Another Property', value: 'I want to list my property' },
+        { label: '📋 Check Listing Status', value: 'Check my listing status' },
+        { label: '🔍 Search Properties', value: 'Show me available properties' }
+      ]
     );
   };
 
@@ -224,7 +251,11 @@ Your property listing has been forwarded to the owner for approval. You'll recei
         await simulateTyping(500);
         addMessage(
           "I don't have any property listings available at the moment. Would you like to list your property? 🏠",
-          'bot'
+          'bot',
+          [
+            { label: '🏠 List Property', value: 'I want to list my property' },
+            { label: '❓ Help', value: 'How does this work?' }
+          ]
         );
         return;
       }
@@ -255,7 +286,11 @@ Your property listing has been forwarded to the owner for approval. You'll recei
       
       if (availableProperties.length === 0) {
         await simulateTyping(500);
-        addMessage("No properties are currently listed. Be the first to list your property! 🏠", 'bot');
+        addMessage(
+          "No properties are currently listed. Be the first to list your property! 🏠",
+          'bot',
+          [{ label: '🏠 List Property', value: 'I want to list my property' }]
+        );
         return;
       }
       
@@ -284,7 +319,11 @@ Your property listing has been forwarded to the owner for approval. You'll recei
       } else {
         addMessage(
           "You haven't submitted any property listings yet. Would you like to list a property?",
-          'bot'
+          'bot',
+          [
+            { label: '🏠 List Property', value: 'I want to list my property' },
+            { label: '🔍 Search Properties', value: 'Show me available properties' }
+          ]
         );
       }
       return;
@@ -304,8 +343,9 @@ Your property listing has been forwarded to the owner for approval. You'll recei
       console.error('AI Service Error:', error);
       await simulateTyping(500);
       addMessage(
-        "I'm here to help! You can:\n• Search for properties (e.g., 'Show me apartments in Bangalore')\n• List your property\n• Ask questions about the process\n\nWhat would you like to do?",
-        'bot'
+        "I'm here to help! What would you like to do?",
+        'bot',
+        quickActions
       );
     }
   };
