@@ -1,0 +1,8 @@
+podman-compose.yml
+/real/node_modules
+/real/dist
+/real/build
+/real/.env
+/real/.venv
+/real/package-lock.json
+/real/nginx.conf
