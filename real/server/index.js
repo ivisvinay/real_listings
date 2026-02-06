@@ -25,15 +25,21 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Middleware
-
 app.use(cors({
-  origin: '*', // Your frontend domain
+  origin: [
+    'http://localhost:3000',
+    'https://real.ivislabs.in'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
-  credentials: false // If you're using cookies/authentication
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
 }));
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // Multer config for image uploads
 const storage = multer.diskStorage({
@@ -146,7 +152,7 @@ app.delete('/api/properties/:id', (req, res) => {
   res.json({ message: 'Property deleted' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Property server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Property server running on http://0.0.0.0:${PORT}`);
   console.log(`Uploads served from: ${uploadsDir}`);
 });
