@@ -38,3 +38,8 @@ yarn-error.log*
 # Misc
 .cache
 .temp
+
+# Server data (keep structure, ignore content)
+server/uploads/*
+!server/uploads/.gitkeep
+server/data/properties.json
