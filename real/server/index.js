@@ -25,7 +25,13 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Middleware
-app.use(cors());
+
+app.use(cors({
+  origin: '*', // Your frontend domain
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+  credentials: false // If you're using cookies/authentication
+}));
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
