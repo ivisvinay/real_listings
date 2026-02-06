@@ -7,7 +7,7 @@ import PropertyForm from './components/PropertyForm';
 
 // Configuration - Set your Google Form URL here
 const USE_GOOGLE_FORM = true; // Set to false to use custom form
-const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true';
+const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeDCgYokdJCJ89Y5_Q-0uoZr6IGZR7FDJ1TTwFRDrDNsa0_Fw/viewform?usp=header?embedded=true';
 
 function App() {
   const [messages, setMessages] = useState([]);
