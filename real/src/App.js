@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { aiService } from './services/aiService';
-import { sheetsService, getCachedProperties } from './services/sheetsService';
+import { propertyService } from './services/propertyService';
 import ChatMessage from './components/ChatMessage';
 import PropertyForm from './components/PropertyForm';
-
-// Configuration - Set to true and provide URL to use Google Form instead of custom form
-const USE_GOOGLE_FORM = false;
-const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true';
+import PropertyCard from './components/PropertyCard';
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -28,13 +25,13 @@ function App() {
   }, [messages]);
 
   useEffect(() => {
-    // Load properties from Google Sheets
+    // Load properties from backend
     const loadProperties = async () => {
       try {
-        const properties = await getCachedProperties();
+        const properties = await propertyService.fetchProperties();
         setAvailableProperties(properties);
         setLoadingProperties(false);
-        console.log(`Loaded ${properties.length} properties`);
+        console.log(`Loaded ${properties.length} properties from backend`);
       } catch (error) {
         console.error('Failed to load properties:', error);
         setLoadingProperties(false);
@@ -66,13 +63,14 @@ function App() {
     { label: '❓ Help', value: 'How does this work?' }
   ];
 
-  const addMessage = (text, sender = 'user', actions = null) => {
+  const addMessage = (text, sender = 'user', actions = null, properties = null) => {
     const newMessage = {
       id: Date.now() + Math.random(),
       text,
       sender,
       timestamp: new Date(),
-      ...(actions && { actions })
+      ...(actions && { actions }),
+      ...(properties && { properties })
     };
     setMessages(prev => [...prev, newMessage]);
     return newMessage;
@@ -91,7 +89,7 @@ function App() {
   const handlePropertyListing = async () => {
     await simulateTyping(800);
     addMessage(
-      "Great! I'll help you list your property. 📝\n\nPlease click the button below to fill in the property details.",
+      "Great! I'll help you list your property. 📝\n\nPlease fill in the property details:",
       'bot'
     );
     setShowPropertyForm(true);
@@ -99,14 +97,14 @@ function App() {
 
   const handlePropertySearch = async (userMessage) => {
     await simulateTyping(1000);
-    
+
     // Extract requirements from user message
     const requirements = await aiService.extractRequirements(userMessage);
     console.log('Extracted requirements:', requirements);
-    
+
     // Filter properties based on requirements
-    const filtered = sheetsService.filterProperties(availableProperties, requirements);
-    
+    const filtered = propertyService.filterProperties(availableProperties, requirements);
+
     if (filtered.length === 0) {
       addMessage(
         "I couldn't find any properties matching those specific criteria. 😕",
@@ -119,112 +117,84 @@ function App() {
       );
       return;
     }
-    
+
     await simulateTyping(500);
-    
-    // Show summary first
-    const summary = sheetsService.createPropertyListingSummary(filtered);
-    addMessage(summary, 'bot');
-    
-    await simulateTyping(1000);
-    
-    // Show detailed listings (max 3)
-    if (filtered.length <= 3) {
-      filtered.forEach(async (prop, index) => {
-        await simulateTyping(800);
-        const formatted = sheetsService.formatPropertyForChat(prop);
-        addMessage(formatted, 'bot');
-      });
-    } else {
-      // Show top 3 and offer to see more
-      for (let i = 0; i < 3; i++) {
-        await simulateTyping(800);
-        const formatted = sheetsService.formatPropertyForChat(filtered[i]);
-        addMessage(formatted, 'bot');
-      }
-      
-      await simulateTyping(500);
-      addMessage(
-        `I have ${filtered.length - 3} more properties that match your criteria. Would you like to see them or refine your search?`,
-        'bot'
-      );
-    }
-    
-    await simulateTyping(800);
+
+    // Show results with property cards
     addMessage(
-      "Would you like more details about any of these properties? Just let me know! 😊",
-      'bot'
+      `Found *${filtered.length} ${filtered.length === 1 ? 'property' : 'properties'}* matching your search:`,
+      'bot',
+      null,
+      filtered
     );
   };
 
   const handlePropertySubmission = async (formData) => {
     setShowPropertyForm(false);
-    setPropertyData(formData);
 
-    // Add submitted property to available properties so it's searchable
-    const newProperty = {
-      id: Date.now(),
-      type: formData.type,
-      price: formData.price,
-      location: formData.location,
-      description: formData.description,
-      amenities: formData.amenities,
-      ownerName: formData.ownerName,
-      contactNumber: formData.contactNumber || '',
-      images: formData.images,
-      video: formData.video,
-      status: 'pending',
-      timestamp: new Date().toISOString()
-    };
-    setAvailableProperties(prev => [...prev, newProperty]);
+    addMessage("Uploading your property...", 'bot');
 
-    addMessage("✅ Property details received!", 'bot');
-    
-    await simulateTyping(1500);
-    
-    const summary = `
-📋 *Property Details Summary*
+    try {
+      // Submit to backend
+      const savedProperty = await propertyService.createProperty(formData);
+      setPropertyData(savedProperty);
+      setAvailableProperties(prev => [...prev, savedProperty]);
 
-🏠 *Type:* ${formData.type}
-💰 *Price:* ₹${formData.price}
-📍 *Location:* ${formData.location}
-📝 *Description:* ${formData.description}
-🛏️ *Amenities:* ${formData.amenities}
-👤 *Owner:* ${formData.ownerName}
-📸 *Images:* ${formData.images ? formData.images.length : 0} uploaded
-🎥 *Video:* ${formData.video ? 'Yes' : 'No'}
+      await simulateTyping(500);
 
-Your property listing has been forwarded to the owner for approval. You'll receive a confirmation once it's reviewed. ⏳
-    `.trim();
-    
-    addMessage(summary, 'bot');
-    
-    await simulateTyping(2000);
-    addMessage(
-      "What would you like to do next?",
-      'bot',
-      [
-        { label: '🏠 List Another Property', value: 'I want to list my property' },
-        { label: '📋 Check Listing Status', value: 'Check my listing status' },
-        { label: '🔍 Search Properties', value: 'Show me available properties' }
-      ]
-    );
+      const imageCount = savedProperty.images ? savedProperty.images.length : 0;
+      const summary = `✅ *Property listed successfully!*
+
+🏠 *Type:* ${savedProperty.type}
+💰 *Price:* ₹${propertyService.formatPrice(savedProperty.price)}
+📍 *Location:* ${savedProperty.location}
+📝 *Description:* ${savedProperty.description}
+👤 *Owner:* ${savedProperty.ownerName}
+📸 *Images:* ${imageCount} uploaded
+
+Your property is now live and visible to searchers!`;
+
+      addMessage(summary, 'bot');
+
+      // Show the property card
+      if (savedProperty.images && savedProperty.images.length > 0) {
+        await simulateTyping(500);
+        addMessage("Here's how your listing looks:", 'bot', null, [savedProperty]);
+      }
+
+      await simulateTyping(1000);
+      addMessage(
+        "What would you like to do next?",
+        'bot',
+        [
+          { label: '🏠 List Another Property', value: 'I want to list my property' },
+          { label: '🔍 Search Properties', value: 'Show me available properties' }
+        ]
+      );
+    } catch (error) {
+      console.error('Submission error:', error);
+      addMessage(
+        "Sorry, there was an error submitting your property. Please try again.",
+        'bot',
+        [{ label: '🏠 Try Again', value: 'I want to list my property' }]
+      );
+    }
   };
 
   const processUserMessage = async (userMessage) => {
     const lowerMessage = userMessage.toLowerCase();
-    
+
     // Check for property listing intent
-    if (lowerMessage.includes('list') && 
-        (lowerMessage.includes('my') || lowerMessage.includes('property')) || 
-        lowerMessage.includes('post') || 
+    if (lowerMessage.includes('list') &&
+        (lowerMessage.includes('my') || lowerMessage.includes('property')) ||
+        lowerMessage.includes('post') ||
         lowerMessage.includes('sell') && !lowerMessage.includes('show')) {
       await handlePropertyListing();
       return;
     }
-    
+
     // Check for property search intent
-    if (lowerMessage.includes('find') || 
+    if (lowerMessage.includes('find') ||
         lowerMessage.includes('looking for') ||
         lowerMessage.includes('search') ||
         lowerMessage.includes('show') && (lowerMessage.includes('property') || lowerMessage.includes('properties')) ||
@@ -232,15 +202,15 @@ Your property listing has been forwarded to the owner for approval. You'll recei
         lowerMessage.includes('villa') ||
         lowerMessage.includes('house') ||
         lowerMessage.includes('plot') ||
-        (lowerMessage.includes('buy') || lowerMessage.includes('rent')) && 
+        (lowerMessage.includes('buy') || lowerMessage.includes('rent')) &&
         (lowerMessage.includes('property') || lowerMessage.includes('apartment') || lowerMessage.includes('house'))) {
-      
+
       if (loadingProperties) {
         await simulateTyping(500);
         addMessage("Please wait while I load the available properties... ⏳", 'bot');
         return;
       }
-      
+
       if (availableProperties.length === 0) {
         await simulateTyping(500);
         addMessage(
@@ -253,18 +223,18 @@ Your property listing has been forwarded to the owner for approval. You'll recei
         );
         return;
       }
-      
+
       await handlePropertySearch(userMessage);
       return;
     }
-    
+
     // Check for greetings
     if (lowerMessage.match(/^(hi|hello|hey|good morning|good afternoon|good evening)/)) {
       await simulateTyping(500);
-      const propertiesInfo = availableProperties.length > 0 
+      const propertiesInfo = availableProperties.length > 0
         ? `\n\n🏘️ We currently have *${availableProperties.length} properties* available for you to explore!`
         : '';
-      
+
       addMessage(
         `Hello! 👋 How can I help you today?${propertiesInfo}\n\nYou can:\n• Search for properties (e.g., "Show me villas in Bangalore")\n• List your property\n• Ask about the process`,
         'bot',
@@ -272,12 +242,12 @@ Your property listing has been forwarded to the owner for approval. You'll recei
       );
       return;
     }
-    
+
     // Check for "show all" or "see all"
-    if (lowerMessage.includes('show all') || 
+    if (lowerMessage.includes('show all') ||
         lowerMessage.includes('see all') ||
         lowerMessage.includes('all properties')) {
-      
+
       if (availableProperties.length === 0) {
         await simulateTyping(500);
         addMessage(
@@ -287,27 +257,23 @@ Your property listing has been forwarded to the owner for approval. You'll recei
         );
         return;
       }
-      
+
       await simulateTyping(1000);
-      const summary = `We have *${availableProperties.length} properties* available:\n\n`;
-      const types = {};
-      availableProperties.forEach(p => {
-        types[p.type] = (types[p.type] || 0) + 1;
-      });
-      const breakdown = Object.entries(types)
-        .map(([type, count]) => `• ${type}: ${count}`)
-        .join('\n');
-      
-      addMessage(summary + breakdown + '\n\nWhat type of property are you looking for?', 'bot');
+      addMessage(
+        `Here are all *${availableProperties.length} properties* available:`,
+        'bot',
+        null,
+        availableProperties
+      );
       return;
     }
-    
+
     // Check for status inquiry
     if (lowerMessage.includes('status') || lowerMessage.includes('check')) {
       await simulateTyping(800);
       if (propertyData) {
         addMessage(
-          `Your property at *${propertyData.location}* is currently under review. We'll notify you once the owner approves it! 📋`,
+          `Your property at *${propertyData.location}* is live and visible to searchers! 📋`,
           'bot'
         );
       } else {
@@ -322,7 +288,7 @@ Your property listing has been forwarded to the owner for approval. You'll recei
       }
       return;
     }
-    
+
     // Use AI service for general queries with property context
     try {
       await simulateTyping(1200);
@@ -330,7 +296,7 @@ Your property listing has been forwarded to the owner for approval. You'll recei
         properties: availableProperties,
         conversationContext: `User has seen ${messages.length} messages. ${availableProperties.length} properties available.`
       };
-      
+
       const aiResponse = await aiService.getChatResponse(userMessage, context);
       addMessage(aiResponse, 'bot');
     } catch (error) {
@@ -346,15 +312,15 @@ Your property listing has been forwarded to the owner for approval. You'll recei
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    
+
     if (!inputText.trim()) return;
-    
+
     const userMessage = inputText;
     setInputText('');
-    
+
     // Add user message
     addMessage(userMessage, 'user');
-    
+
     // Process message
     await processUserMessage(userMessage);
   };
@@ -392,9 +358,18 @@ Your property listing has been forwarded to the owner for approval. You'll recei
         {/* Messages Container */}
         <div className="messages-container">
           {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} onAction={handleQuickAction} />
+            <React.Fragment key={message.id}>
+              <ChatMessage message={message} onAction={handleQuickAction} />
+              {message.properties && message.properties.length > 0 && (
+                <div className="property-cards-container">
+                  {message.properties.map((prop) => (
+                    <PropertyCard key={prop.id} property={prop} />
+                  ))}
+                </div>
+              )}
+            </React.Fragment>
           ))}
-          
+
           {isTyping && (
             <div className="message bot-message">
               <div className="typing-indicator">
@@ -404,7 +379,7 @@ Your property listing has been forwarded to the owner for approval. You'll recei
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
 
@@ -413,8 +388,6 @@ Your property listing has been forwarded to the owner for approval. You'll recei
           <PropertyForm
             onSubmit={handlePropertySubmission}
             onClose={() => setShowPropertyForm(false)}
-            useGoogleForm={USE_GOOGLE_FORM}
-            googleFormUrl={GOOGLE_FORM_URL}
           />
         )}
 
