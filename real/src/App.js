@@ -5,9 +5,15 @@ import { sheetsService, getCachedProperties } from './services/sheetsService';
 import ChatMessage from './components/ChatMessage';
 import PropertyForm from './components/PropertyForm';
 
+<<<<<<< HEAD
 // Configuration - Set your Google Form URL here
 const USE_GOOGLE_FORM = true; // Set to false to use custom form
 const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeDCgYokdJCJ89Y5_Q-0uoZr6IGZR7FDJ1TTwFRDrDNsa0_Fw/viewform?usp=header?embedded=true';
+=======
+// Configuration - Set to true and provide URL to use Google Form instead of custom form
+const USE_GOOGLE_FORM = false;
+const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true';
+>>>>>>> 207a27b8e0758c6e58b482786f1e77e2a3235c53
 
 function App() {
   const [messages, setMessages] = useState([]);
