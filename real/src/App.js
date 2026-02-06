@@ -365,7 +365,7 @@ Your property listing has been forwarded to the owner for approval. You'll recei
         )}
 
         {/* Quick Actions */}
-        {!showPropertyForm && messages.length > 1 && (
+        {!showPropertyForm && messages.length >= 1 && (
           <div className="quick-actions">
             <button 
               className="quick-action-btn"
