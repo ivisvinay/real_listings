@@ -9,6 +9,7 @@ import PropertyForm from './components/PropertyForm';
 const USE_GOOGLE_FORM = false;
 const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true';
 import PropertyCard from './components/PropertyCard';
+import PropertyCard from './components/PropertyCard';
 
 function App() {
   const [messages, setMessages] = useState([]);
