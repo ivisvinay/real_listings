@@ -155,7 +155,24 @@ function App() {
   const handlePropertySubmission = async (formData) => {
     setShowPropertyForm(false);
     setPropertyData(formData);
-    
+
+    // Add submitted property to available properties so it's searchable
+    const newProperty = {
+      id: Date.now(),
+      type: formData.type,
+      price: formData.price,
+      location: formData.location,
+      description: formData.description,
+      amenities: formData.amenities,
+      ownerName: formData.ownerName,
+      contactNumber: formData.contactNumber || '',
+      images: formData.images,
+      video: formData.video,
+      status: 'pending',
+      timestamp: new Date().toISOString()
+    };
+    setAvailableProperties(prev => [...prev, newProperty]);
+
     addMessage("✅ Property details received!", 'bot');
     
     await simulateTyping(1500);
