@@ -49,18 +49,30 @@ function App() {
         id: Date.now(),
         text: "👋 Hello! Welcome to IVIS Property Listings.\n\nI'm your AI assistant. I can help you:\n• Find properties based on your requirements\n• List your property\n• Answer questions about the process\n\nHow can I assist you today?",
         sender: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
+        actions: [
+          { label: '🔍 Search Properties', value: 'Show me available properties' },
+          { label: '🏠 List Property', value: 'I want to list my property' },
+          { label: '❓ Help', value: 'How does this work?' }
+        ]
       };
       setMessages([initialMessage]);
     }, 500);
   }, []);
 
-  const addMessage = (text, sender = 'user') => {
+  const quickActions = [
+    { label: '🔍 Search Properties', value: 'Show me available properties' },
+    { label: '🏠 List Property', value: 'I want to list my property' },
+    { label: '❓ Help', value: 'How does this work?' }
+  ];
+
+  const addMessage = (text, sender = 'user', actions = null) => {
     const newMessage = {
       id: Date.now() + Math.random(),
       text,
       sender,
-      timestamp: new Date()
+      timestamp: new Date(),
+      ...(actions && { actions })
     };
     setMessages(prev => [...prev, newMessage]);
     return newMessage;
@@ -224,7 +236,8 @@ Your property listing has been forwarded to the owner for approval. You'll recei
       
       addMessage(
         `Hello! 👋 How can I help you today?${propertiesInfo}\n\nYou can:\n• Search for properties (e.g., "Show me villas in Bangalore")\n• List your property\n• Ask about the process`,
-        'bot'
+        'bot',
+        quickActions
       );
       return;
     }
@@ -306,8 +319,9 @@ Your property listing has been forwarded to the owner for approval. You'll recei
     await processUserMessage(userMessage);
   };
 
-  const handleQuickAction = (action) => {
-    setInputText(action);
+  const handleQuickAction = async (action) => {
+    addMessage(action, 'user');
+    await processUserMessage(action);
   };
 
   return (
@@ -338,7 +352,7 @@ Your property listing has been forwarded to the owner for approval. You'll recei
         {/* Messages Container */}
         <div className="messages-container">
           {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+            <ChatMessage key={message.id} message={message} onAction={handleQuickAction} />
           ))}
           
           {isTyping && (
@@ -364,29 +378,6 @@ Your property listing has been forwarded to the owner for approval. You'll recei
           />
         )}
 
-        {/* Quick Actions */}
-        {!showPropertyForm && messages.length > 1 && (
-          <div className="quick-actions">
-            <button 
-              className="quick-action-btn"
-              onClick={() => handleQuickAction("Show me available properties")}
-            >
-              🔍 Search Properties
-            </button>
-            <button 
-              className="quick-action-btn"
-              onClick={() => handleQuickAction("I want to list my property")}
-            >
-              🏠 List Property
-            </button>
-            <button 
-              className="quick-action-btn"
-              onClick={() => handleQuickAction("How does this work?")}
-            >
-              ❓ Help
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Input Area */}

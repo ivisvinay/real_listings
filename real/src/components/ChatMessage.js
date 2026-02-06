@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ChatMessage = ({ message }) => {
+const ChatMessage = ({ message, onAction }) => {
   const formatMessage = (text) => {
     // Convert markdown-style bold to HTML
     const boldText = text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
@@ -8,19 +8,32 @@ const ChatMessage = ({ message }) => {
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
   };
 
   return (
     <div className={`message ${message.sender === 'user' ? 'user-message' : 'bot-message'}`}>
-      <div 
+      <div
         className="message-content"
         dangerouslySetInnerHTML={formatMessage(message.text)}
       />
+      {message.actions && message.actions.length > 0 && (
+        <div className="message-actions">
+          {message.actions.map((action, index) => (
+            <button
+              key={index}
+              className="message-action-btn"
+              onClick={() => onAction && onAction(action.value)}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="message-time">
         {formatTime(message.timestamp)}
         {message.sender === 'user' && (
