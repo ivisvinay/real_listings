@@ -5,8 +5,8 @@ import { sheetsService, getCachedProperties } from './services/sheetsService';
 import ChatMessage from './components/ChatMessage';
 import PropertyForm from './components/PropertyForm';
 
-// Configuration - Set your Google Form URL here
-const USE_GOOGLE_FORM = true; // Set to false to use custom form
+// Configuration - Set to true and provide URL to use Google Form instead of custom form
+const USE_GOOGLE_FORM = false;
 const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true';
 
 function App() {
