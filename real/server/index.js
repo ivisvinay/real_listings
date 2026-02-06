@@ -30,8 +30,8 @@ app.use(cors({
     'http://localhost:3000',
     'https://real.ivislabs.in'
   ],
-  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
 }));
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
