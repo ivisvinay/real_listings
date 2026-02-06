@@ -4,14 +4,7 @@ import { aiService } from './services/aiService';
 import { propertyService } from './services/propertyService';
 import ChatMessage from './components/ChatMessage';
 import PropertyForm from './components/PropertyForm';
-<<<<<<< HEAD
-
-// Configuration - Set your Google Form URL here
-const USE_GOOGLE_FORM = false;
-const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true';
-=======
 import PropertyCard from './components/PropertyCard';
->>>>>>> 85f1d7917a7d0e1bc88ddfa1ccd1f74db46fe3e8
 
 function App() {
   const [messages, setMessages] = useState([]);
