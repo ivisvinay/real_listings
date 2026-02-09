@@ -5,8 +5,10 @@ import { propertyService } from './services/propertyService';
 import ChatMessage from './components/ChatMessage';
 import PropertyForm from './components/PropertyForm';
 import PropertyCard from './components/PropertyCard';
+import LandingPage from './components/LandingPage';
 
 function App() {
+  const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -330,12 +332,21 @@ Your property is now live and visible to searchers!`;
     await processUserMessage(action);
   };
 
+  if (!showChat) {
+    return (
+      <LandingPage
+        onStartChat={() => setShowChat(true)}
+        propertyCount={availableProperties.length}
+      />
+    );
+  }
+
   return (
     <div className="whatsapp-container">
       {/* Header */}
       <div className="whatsapp-header">
         <div className="header-left">
-          <div className="back-button">←</div>
+          <div className="back-button" onClick={() => setShowChat(false)}>←</div>
           <div className="profile-pic">
             <div className="profile-icon">🏢</div>
           </div>
