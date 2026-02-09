@@ -1,32 +1,22 @@
-// AI Service for IVIS LABS Chat API / Open WebUI
-// Configure your API endpoint and key in .env file
+// AI Service — proxied through our backend to avoid CORS issues
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://chat.ivislabs.in';
-const API_KEY = process.env.REACT_APP_API_KEY || 'your-api-key-here';
+const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_KEY = process.env.REACT_APP_API_KEY || '';
 const MODEL_NAME = process.env.REACT_APP_MODEL_NAME || 'granite3.1-dense:latest';
-
-// Check if using Open WebUI (different endpoint structure)
-const IS_OPEN_WEBUI = API_BASE_URL.includes('openwebui') || 
-                      process.env.REACT_APP_USE_OPEN_WEBUI === 'true';
 
 export const aiService = {
   async getChatResponse(query, context = {}) {
     try {
-      // Build endpoint URL based on API type
-      const endpoint = IS_OPEN_WEBUI ? '/api/chat/completions' : '/chat/completions';
-      const url = `${API_BASE_URL}${endpoint}`.replace(/([^:]\/)\/+/g, "$1");
-      
-      console.log('Sending request to:', url);
-      
+      const url = `${BACKEND_URL}/api/chat`;
+
       // Build system prompt with context
       const systemPrompt = this.buildSystemPrompt(context);
-      
+
       const response = await fetch(url, {
         method: 'POST',
-        mode: 'cors',
         headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(API_KEY && { 'x-api-key': API_KEY })
         },
         body: JSON.stringify({
           model: MODEL_NAME,
@@ -35,9 +25,9 @@ export const aiService = {
               role: 'system',
               content: systemPrompt
             },
-            { 
-              role: 'user', 
-              content: query 
+            {
+              role: 'user',
+              content: query
             }
           ],
           temperature: 0.7,
@@ -252,27 +242,4 @@ Return only valid JSON, nothing else.`;
     return requirements;
   },
 
-  // Test connection on module load (only in development)
-  async testConnection() {
-    try {
-      const response = await this.getChatResponse("Hello");
-      console.log('API Connection Test: SUCCESS');
-      return { success: true, response };
-    } catch (error) {
-      console.error('API Connection Test: FAILED', error);
-      return { success: false, error: error.message };
-    }
-  }
 };
-
-// Test connection on module load (only in development)
-if (process.env.NODE_ENV === 'development') {
-  aiService.testConnection().then(result => {
-    if (result.success) {
-      console.log('✅ AI Service connected successfully');
-    } else {
-      console.warn('⚠️ AI Service connection issue:', result.error);
-      console.warn('Using fallback responses. Please check your .env configuration.');
-    }
-  });
-}

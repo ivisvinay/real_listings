@@ -41,6 +41,32 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// AI Chat proxy — forwards requests to IVIS LABS API to avoid CORS
+const AI_API_URL = process.env.AI_API_URL || 'https://chat.ivislabs.in';
+const AI_API_KEY = process.env.AI_API_KEY || '';
+
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { model, messages, temperature, max_tokens } = req.body;
+    const apiKey = req.headers['x-api-key'] || AI_API_KEY;
+
+    const response = await fetch(`${AI_API_URL}/api/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ model, messages, temperature, max_tokens })
+    });
+
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (error) {
+    console.error('AI proxy error:', error);
+    res.status(502).json({ error: 'Failed to reach AI service' });
+  }
+});
+
 // Multer config for image uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
