@@ -1,6 +1,6 @@
 # IVIS Property Listings — Client Query Responses
 
-**Version:** 2.0
+**Version:** 2.1
 **Date:** February 2026
 **Market:** Kingdom of Bahrain
 **Prepared for:** Client Stakeholders
@@ -18,8 +18,8 @@
 
 Validation is enforced at **three layers** — designed for zero human intervention in the standard flow:
 
-**Layer 1 — Conversational Validation (WhatsApp / Voice)**
-When a user submits a listing via WhatsApp chat or voice, the AI agent collects required fields conversationally and does not proceed until all mandatory fields are captured:
+**Layer 1 — Conversational Validation (WhatsApp)**
+When a user submits a listing via WhatsApp chat, the AI agent collects required fields conversationally and does not proceed until all mandatory fields are captured:
 
 | Field | Validation Rule | Required |
 |-------|----------------|----------|
@@ -27,7 +27,7 @@ When a user submits a listing via WhatsApp chat or voice, the AI agent collects 
 | Price (BHD) | Must be a valid number in Bahraini Dinar | Yes |
 | Location | Must match known Bahrain areas (Seef, Juffair, Amwaj, Riffa, Muharraq, Isa Town, Budaiya, Saar, Hamala, etc.) | Yes |
 | Size (sq. m / sq. ft) | Must be numeric | Yes |
-| Description | Cannot be empty (AI auto-generates from voice if needed) | Yes |
+| Description | Cannot be empty | Yes |
 | Owner Name | Cannot be empty | Yes |
 | Contact Number | Bahrain phone format (+973 XXXX XXXX) | Yes |
 | Images | Image files only (jpg, png, webp), max 10MB each | Recommended |
@@ -73,7 +73,7 @@ AUTOMATED FLOW (95% of listings):
 ┌──────────────┐     ┌──────────────────┐     ┌──────────────┐
 │ User submits │────▶│ AI Auto-Screen   │────▶│    LIVE      │
 │ via WhatsApp │     │ (instant, <3sec) │     │  (published) │
-│ or Voice     │     │                  │     │              │
+│              │     │                  │     │              │
 │              │     │ • Field complete │     │ Auto-notifies│
 │ Status:      │     │ • Price sanity   │     │ owner via    │
 │ "submitted"  │     │ • Image check    │     │ WhatsApp     │
@@ -215,7 +215,7 @@ All listing lifecycle operations are available **via WhatsApp conversation** —
 | Operation | How Owner Does It | Human Needed? |
 |-----------|-------------------|---------------|
 | **Update price** | Sends "Change price to BHD 150,000" on WhatsApp | **No** — AI processes it |
-| **Update description** | Sends updated text or voice note | **No** — AI transcribes and updates |
+| **Update description** | Sends updated text | **No** — AI updates listing |
 | **Add images** | Sends new photos on WhatsApp | **No** — auto-added to gallery |
 | **Remove images** | "Remove photo 3" | **No** — AI removes specified image |
 | **Pause listing** | "Hide my listing" / "أوقف الإعلان" | **No** — status → paused |
@@ -249,41 +249,7 @@ All listing lifecycle operations are available **via WhatsApp conversation** —
 
 **Answer:**
 
-This question is particularly important for the **Voice User Interface (VUI)** use case — where users speak to the system in Bahraini Arabic dialect via WhatsApp voice notes or voice calls.
-
-**Voice Pipeline Architecture:**
-
-```
-┌──────────────┐     ┌──────────────────┐     ┌──────────────┐     ┌──────────────┐
-│ User sends   │────▶│ Speech-to-Text   │────▶│ AI Agent     │────▶│ Text-to-Speech│
-│ voice note   │     │ (ASR Engine)     │     │ (NLU + Logic)│     │ (TTS Engine) │
-│ via WhatsApp │     │                  │     │              │     │              │
-│              │     │ Bahraini dialect │     │ Processes    │     │ Responds in  │
-│ 🎤 Arabic   │     │ aware            │     │ intent       │     │ Arabic/English│
-└──────────────┘     └──────────────────┘     └──────────────┘     └──────────────┘
-```
-
-**Speech-to-Text (ASR) — Bahraini Arabic Dialect Support:**
-
-| ASR Engine | Bahraini/Gulf Dialect Support | Notes |
-|------------|------------------------------|-------|
-| **Google Cloud Speech-to-Text** | ar-BH (Bahraini Arabic) locale | Best accuracy for Gulf dialects |
-| **Azure Speech Services** | Gulf Arabic model | Strong for mixed Arabic-English |
-| **OpenAI Whisper (Large-v3)** | Handles dialectal Arabic well | Self-hosted option, no data leaves our servers |
-| **Fallback** | MSA (Modern Standard Arabic) model | Works for most Gulf speakers |
-
-**Recommended: Google Cloud Speech-to-Text with `ar-BH` locale** — specifically trained on Bahraini Arabic speech patterns, with Azure as fallback.
-
-**Dialect-Specific Challenges & Solutions:**
-
-| Challenge | Bahraini Example | How We Handle It |
-|-----------|-----------------|-----------------|
-| Gulf pronunciation variations | "أبي" (abi) = "أريد" (I want) | Dialect-aware ASR model + intent mapping |
-| Code-switching (Arabic ↔ English) | "أبي villa في Amwaj" | Multi-language ASR mode processes both |
-| Local place names | "الصخير", "عوالي", "الجفير" | Custom vocabulary / phrase hints in ASR config |
-| Colloquial real estate terms | "فلّة" (villa), "ديرة" (area), "حوش" (courtyard) | Glossary injection in ASR and NLU |
-| Numbers in Arabic speech | "مية وخمسين ألف" (150,000) | Arabic number normalization pipeline |
-| Voice quality (background noise) | WhatsApp voice notes from outdoors | Noise reduction preprocessing |
+The AI is designed to handle **Bahraini Arabic dialect, Gulf Arabic, and mixed-language text input** natively across WhatsApp conversations.
 
 **Text Chat — Language Support Matrix:**
 
@@ -299,6 +265,8 @@ This question is particularly important for the **Voice User Interface (VUI)** u
 | **Filipino/Tagalog basics** | Common phrases supported | For Bahrain's Filipino community |
 
 **Bahrain Real Estate Terminology Mapping:**
+
+The AI system prompt is enriched with Bahrain-specific real estate terminology:
 
 | Local Term (Arabic) | Local Term (English) | Standard Mapping |
 |---------------------|---------------------|-----------------|
@@ -317,20 +285,29 @@ This question is particularly important for the **Voice User Interface (VUI)** u
 | مفروش (mafroosh) | Furnished | Furnished |
 | RERA | RERA Bahrain | Real Estate Regulatory Authority |
 
-**How Voice Input Flows:**
+**How It Works:**
 
-1. **User sends voice note** on WhatsApp (Bahraini dialect)
-2. **WhatsApp Business API** delivers audio file to our backend
-3. **ASR Engine** (Google `ar-BH`) transcribes speech → Arabic text
-4. **NLU Pipeline** extracts intent + entities (property type, location, budget)
-5. **AI Agent** processes request against property database
-6. **Response generated** — text + optional TTS voice reply in Gulf Arabic
-7. **Sent back via WhatsApp** — text message + voice note (if voice mode)
+1. **User sends text message** on WhatsApp in any language or mixed-language format
+2. **WhatsApp Business API** delivers the message to our backend
+3. **AI NLU Pipeline** detects language, extracts intent + entities (property type, location, budget)
+4. **AI Agent** processes the request against the property database
+5. **Response generated** in the same language the user used — Arabic users get Arabic replies, English users get English
+6. **Sent back via WhatsApp** as a text message with property details, images, and action buttons
+
+**Dialect-Specific Handling:**
+
+| Challenge | Bahraini Example | How We Handle It |
+|-----------|-----------------|-----------------|
+| Gulf dialect expressions | "أبي" (abi) = "أريد" (I want) | NLU intent mapping trained on Gulf Arabic |
+| Code-switching (Arabic ↔ English) | "أبي villa في Amwaj" | Multilingual NLU processes both seamlessly |
+| Local place names | "الصخير", "عوالي", "الجفير" | Custom entity recognition for Bahrain neighborhoods |
+| Colloquial real estate terms | "فلّة" (villa), "ديرة" (area), "حوش" (courtyard) | Terminology glossary injected into AI system prompt |
+| Numbers in Arabic text | "مية وخمسين ألف" (150,000) | Arabic number normalization pipeline |
 
 **Production Enhancements:**
-- Custom ASR vocabulary for Bahrain neighborhoods, building names, and developer names (Diyar, Naseej, Reef Island, etc.)
-- Fine-tuning on Bahraini real estate conversation transcripts
-- User preference memory — if user speaks Arabic, all future responses are in Arabic
+- Custom fine-tuning on Bahraini real estate conversation data
+- Entity recognition for Bahrain developer names (Diyar, Naseej, Reef Island, etc.)
+- User preference memory — if user writes in Arabic, all future responses are in Arabic
 - Arabic RTL (right-to-left) support in web chat interface
 
 ---
@@ -341,14 +318,13 @@ This question is particularly important for the **Voice User Interface (VUI)** u
 
 The AI handles ambiguity through a **structured clarification approach** — designed for natural WhatsApp conversation in Arabic or English:
 
-**Scenario 1 — Unclear Requirements (Voice or Text):**
+**Scenario 1 — Unclear Requirements:**
 
 ```
-User (voice, Bahraini Arabic): "أبي شي حلو في مكان زين"
+User: "أبي شي حلو في مكان زين"
      (I want something nice in a good area)
 
-AI (WhatsApp reply):
-     "أهلاً! أقدر أساعدك 😊
+AI:  "أهلاً! أقدر أساعدك 😊
       بس أحتاج أعرف:
       • شنو نوع العقار؟ (شقة، فيلا، بيت، أرض)
       • أي منطقة تفضل؟ (السيف، الجفير، عمواج، الرفاع...)
@@ -392,21 +368,7 @@ AI:   [Switches context entirely, shows Amwaj villas — no confusion]
 
 Each user message is processed independently with the full property database context. The AI does not carry forward stale filters.
 
-**Scenario 4 — Voice Transcription Uncertainty:**
-
-```
-ASR Output: "أبي [unclear] في السيف" (confidence: 0.6 on middle word)
-
-AI:  "سمعتك تقول السيف — ممتاز! بس ما فهمت نوع العقار.
-      تبي شقة، فيلا، أو مكتب؟"
-
-     (I heard Seef — great! But I didn't catch the property type.
-      Do you want an apartment, villa, or office?)
-```
-
-When voice transcription confidence is low, the AI **acknowledges what it understood** and asks to clarify only the unclear part — rather than asking the user to repeat everything.
-
-**Scenario 5 — AI Service Unavailable:**
+**Scenario 4 — AI Service Unavailable:**
 
 ```
 If the AI API fails → automatic fallback:
@@ -420,7 +382,6 @@ If the AI API fails → automatic fallback:
 - **30-second timeout** on AI responses — prevents indefinite waiting
 - **Graceful fallback** — rule-based responses serve immediately if AI is slow
 - **Context awareness** — AI receives a summary of available Bahrain properties, so it never recommends properties that don't exist
-- **Voice retry** — if ASR fails, AI asks user to "send a text message instead" as a graceful fallback
 
 ---
 
@@ -447,7 +408,7 @@ CREATE TABLE audit_log (
     actor_type      VARCHAR(20) NOT NULL,      -- 'user', 'admin', 'system', 'ai_agent'
     actor_id        UUID,
     actor_name      VARCHAR(255),
-    channel         VARCHAR(20),               -- 'whatsapp', 'web', 'voice', 'admin_dashboard'
+    channel         VARCHAR(20),               -- 'whatsapp', 'web', 'admin_dashboard'
     old_values      JSONB,
     new_values      JSONB,
     ai_confidence   DECIMAL(3,2),              -- AI screening confidence score
@@ -479,7 +440,7 @@ CREATE TABLE audit_log (
 **Key Features:**
 - **Immutable** — audit records cannot be edited or deleted (append-only table, no UPDATE/DELETE permissions)
 - **AI actions tracked** — every automated decision is logged with confidence scores, so you can audit AI behavior
-- **Channel tracked** — shows whether action came from WhatsApp, web, voice, or admin dashboard
+- **Channel tracked** — shows whether action came from WhatsApp, web, or admin dashboard
 - **Searchable** — filter by entity, actor, date range, action type, or channel
 - **Exportable** — CSV/PDF export for RERA compliance reporting
 - **Retention** — 5 years minimum (configurable per Bahrain regulatory requirements)
@@ -499,8 +460,8 @@ The audit trail is designed to satisfy Bahrain's Real Estate Regulatory Authorit
 | Severity | Description | Response Time | Resolution Target |
 |----------|-------------|---------------|-------------------|
 | **P0 — Critical** | System down, all users affected, WhatsApp bot unresponsive | **15 minutes** | 2 hours |
-| **P1 — High** | Major feature broken (listings not publishing, AI not responding, voice not working) | **30 minutes** | 4 hours |
-| **P2 — Medium** | Non-critical issue (image upload slow, minor UI glitch, one dialect not recognized) | **2 hours** | 24 hours |
+| **P1 — High** | Major feature broken (listings not publishing, AI not responding) | **30 minutes** | 4 hours |
+| **P2 — Medium** | Non-critical issue (image upload slow, minor UI glitch) | **2 hours** | 24 hours |
 | **P3 — Low** | Minor issue, cosmetic, feature request | **8 hours (business)** | Next sprint |
 
 **Available Support Channels:**
@@ -509,7 +470,7 @@ The audit trail is designed to satisfy Bahrain's Real Estate Regulatory Authorit
 |---------|-------------|----------|
 | **WhatsApp Support Group** (dedicated to client) | **24/7** | P0/P1 — fastest response |
 | **Email** (support@ivislabs.in) | 24/7 (monitored) | P2/P3, documentation, formal requests |
-| **Phone (Direct — Bahrain local number)** | Business hours + on-call | P0 voice escalation |
+| **Phone (Direct — Bahrain local number)** | Business hours + on-call | P0 escalation |
 | **Ticketing System** | 24/7 | Tracking, history, SLA compliance proof |
 
 **Escalation Process (Bahrain Time):**
@@ -549,12 +510,12 @@ Hour 1–2:       If not resolved → Executive Escalation
 - Post-incident: Root Cause Analysis (RCA) document delivered within 48 hours
 
 **Proactive Monitoring:**
+
 | Monitor | Frequency | Alert Method |
 |---------|-----------|-------------|
 | API health check (`/api/health`) | Every 2 minutes | WhatsApp + SMS |
 | WhatsApp Business API connectivity | Every 5 minutes | WhatsApp + SMS |
 | AI API response time | Every 5 minutes | Email + dashboard |
-| Voice ASR service availability | Every 5 minutes | Email + dashboard |
 | CPU/memory thresholds | Real-time | Auto-alert at 80% |
 | Error rate spike | Real-time | Auto-alert at >1% |
 
@@ -573,8 +534,8 @@ This is a critical concern since **WhatsApp Business API is the primary user cha
 │                    User Channels                          │
 │                                                          │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
-│  │  WhatsApp   │  │  Web Chat   │  │  Voice (future) │  │
-│  │  (Primary)  │  │  (Fallback) │  │  (IVR/SIP)     │  │
+│  │  WhatsApp   │  │  Web Chat   │  │  Telegram / SMS  │  │
+│  │  (Primary)  │  │  (Fallback) │  │  (Future)        │  │
 │  └──────┬──────┘  └──────┬──────┘  └───────┬─────────┘  │
 └─────────┼────────────────┼─────────────────┼─────────────┘
           │                │                 │
@@ -607,7 +568,6 @@ This is a critical concern since **WhatsApp Business API is the primary user cha
 | **WhatsApp BSP** (Business Solution Provider) | Primary: Meta Cloud API (direct) | Secondary: Twilio / 360dialog |
 | **Message Templates** | Pre-approved templates for notifications | Web push notifications as fallback |
 | **Media Handling** | WhatsApp media download API | Direct upload via web |
-| **Voice Notes** | WhatsApp audio → ASR | Web-based voice input |
 | **Phone Number** | Bahrain number (+973) registered with Meta | Same number, different BSP if needed |
 
 **Adaptation Strategy for Meta Policy Changes:**
@@ -659,8 +619,8 @@ If WhatsApp becomes unavailable for any reason:
 | Listing approval | AI auto-screening (95% auto-approved) | **Minimal** — only flagged exceptions |
 | Ownership verification | Automated OTP + AI OCR of Bahraini CPR/title deed | **Minimal** — edge cases only |
 | Listing updates | WhatsApp conversational commands | **None** — owner self-service via WhatsApp |
-| Arabic voice input | ASR with `ar-BH` locale (Bahraini dialect) | **None** — fully automated pipeline |
-| AI ambiguity handling | Clarification in same dialect + graceful voice fallback | **None** — AI handles all scenarios |
+| Arabic dialect (text) | Multilingual NLU with Gulf Arabic + terminology glossary | **None** — fully automated |
+| AI ambiguity handling | Clarification in same dialect + graceful fallback | **None** — AI handles all scenarios |
 | Audit trail | Immutable log with AI confidence scores, RERA-compliant | **None** — auto-generated |
 | Support SLA | P0: 15-min response, 24/7, Bahrain-aligned | Dedicated support team |
 | WhatsApp policy risk | BSP abstraction + auto-failover to web + SMS | **< 1 hour** failover, no data loss |
