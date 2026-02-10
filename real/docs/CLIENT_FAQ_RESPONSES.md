@@ -1,7 +1,8 @@
 # IVIS Property Listings — Client Query Responses
 
-**Version:** 1.0
+**Version:** 2.0
 **Date:** February 2026
+**Market:** Kingdom of Bahrain
 **Prepared for:** Client Stakeholders
 **Prepared by:** IVIS LABS Engineering Team
 
@@ -15,40 +16,48 @@
 
 **Answer:**
 
-Validation is enforced at **two layers** to ensure no incomplete listing goes live:
+Validation is enforced at **three layers** — designed for zero human intervention in the standard flow:
 
-**Layer 1 — Frontend (User Interface)**
-The property submission form enforces required fields with HTML5 validation and React-controlled inputs. The following fields are mandatory before the form can be submitted:
+**Layer 1 — Conversational Validation (WhatsApp / Voice)**
+When a user submits a listing via WhatsApp chat or voice, the AI agent collects required fields conversationally and does not proceed until all mandatory fields are captured:
 
 | Field | Validation Rule | Required |
 |-------|----------------|----------|
-| Property Type | Must select from: Apartment, Villa, House, Plot, Commercial, Office Space | Yes |
-| Price (₹) | Must be a valid number | Yes |
-| Location | Cannot be empty | Yes |
-| Description | Cannot be empty | Yes |
+| Property Type | Must match: Apartment (شقة), Villa (فيلا), House (بيت), Plot (أرض), Commercial (تجاري), Office (مكتب) | Yes |
+| Price (BHD) | Must be a valid number in Bahraini Dinar | Yes |
+| Location | Must match known Bahrain areas (Seef, Juffair, Amwaj, Riffa, Muharraq, Isa Town, Budaiya, Saar, Hamala, etc.) | Yes |
+| Size (sq. m / sq. ft) | Must be numeric | Yes |
+| Description | Cannot be empty (AI auto-generates from voice if needed) | Yes |
 | Owner Name | Cannot be empty | Yes |
-| Contact Number | Phone format | No (recommended) |
-| Images | Image files only (jpg, png, gif, webp), max 10MB each | No (recommended) |
+| Contact Number | Bahrain phone format (+973 XXXX XXXX) | Yes |
+| Images | Image files only (jpg, png, webp), max 10MB each | Recommended |
 
-The submit button remains disabled until all required fields are completed. Users receive inline error messages for any missing or invalid fields.
+The AI agent prompts for missing fields naturally in the conversation — in Arabic or English depending on the user's language — eliminating the need for a traditional form.
 
 **Layer 2 — Backend (Server-side)**
 The Express API independently validates every incoming request at `POST /api/properties`:
 
 ```
-Required: type, price, location, ownerName
-→ If any are missing → HTTP 400: "Missing required fields"
-→ File uploads filtered → only image MIME types allowed (jpeg, jpg, png, gif, webp)
-→ File size enforced → 10MB per image, max 10 images
+Required: type, price, location, size, ownerName, contactNumber
+→ Missing any field → HTTP 400: "Missing required fields"
+→ Price must be > 0 BHD
+→ Phone must match Bahrain format (+973)
+→ File uploads → only image MIME types (jpeg, jpg, png, gif, webp)
+→ File size → 10MB per image, max 10 images
 ```
 
-**No listing is stored or published unless both layers pass.** This dual-layer approach ensures data integrity even if a client bypasses the frontend (e.g., via direct API calls).
+**Layer 3 — AI Auto-Screening (Pre-Publish)**
+Before the listing goes live, an automated AI check runs instantly (no human needed):
 
-**Production Roadmap:**
-- Size/area field addition (sq. ft.) — planned
-- Price range validation (minimum thresholds to prevent test data)
-- Geolocation validation (pin verification against known cities)
-- Image quality checks (minimum resolution, duplicate detection)
+| Check | Rule | Action |
+|-------|------|--------|
+| Price sanity | Compares against market averages for area + type in Bahrain | Flag if >3x deviation |
+| Duplicate detection | Location + price + type match within 5% | Block + notify owner |
+| Image moderation | AI scans for inappropriate or irrelevant images | Auto-reject with reason |
+| Content screening | Scans description for spam, prohibited terms | Auto-reject with reason |
+| RERA compliance | Validates listing meets Bahrain RERA disclosure requirements | Flag if missing |
+
+**No listing is stored or published unless all three layers pass.** This ensures data integrity with **zero human intervention** for valid submissions.
 
 ---
 
@@ -56,52 +65,70 @@ Required: type, price, location, ownerName
 
 **Answer:**
 
-**Current State:**
-In the current version, listings go live immediately upon submission. This is by design for the MVP/demo phase to provide a frictionless user experience and demonstrate real-time AI capabilities.
-
-**Production Roadmap — Moderated Listing Flow:**
-
-We have designed a **three-stage approval pipeline** for production deployment:
+The system is designed for **minimal human intervention**. The standard flow is fully automated:
 
 ```
-Stage 1: SUBMISSION          Stage 2: REVIEW           Stage 3: LIVE
-┌──────────────┐         ┌──────────────────┐       ┌──────────────┐
-│ User submits │────────▶│ Auto-screening   │──────▶│ Admin review  │
-│ via chatbot  │         │ (AI + rules)     │       │ (human agent) │
-│              │         │                  │       │               │
-│ Status:      │         │ Status:          │       │ Status:       │
-│ "draft"      │         │ "pending_review" │       │ "active"      │
-└──────────────┘         └──────────────────┘       └──────────────┘
-                                │
-                                │ Auto-reject if:
-                                │ • Inappropriate images
-                                │ • Spam/duplicate content
-                                │ • Prohibited listings
-                                ▼
-                         ┌──────────────┐
-                         │  "rejected"  │
-                         │  + reason    │
-                         └──────────────┘
+AUTOMATED FLOW (95% of listings):
+
+┌──────────────┐     ┌──────────────────┐     ┌──────────────┐
+│ User submits │────▶│ AI Auto-Screen   │────▶│    LIVE      │
+│ via WhatsApp │     │ (instant, <3sec) │     │  (published) │
+│ or Voice     │     │                  │     │              │
+│              │     │ • Field complete │     │ Auto-notifies│
+│ Status:      │     │ • Price sanity   │     │ owner via    │
+│ "submitted"  │     │ • Image check    │     │ WhatsApp     │
+│              │     │ • Duplicate scan │     │              │
+│              │     │ • RERA compliance│     │ Status:      │
+└──────────────┘     └──────────────────┘     │ "active"     │
+                              │               └──────────────┘
+                              │
+                    AI flags anomaly?
+                              │
+                              ▼
+                     ┌────────────────┐
+                     │  EXCEPTION     │  ← Only ~5% of listings
+                     │  QUEUE         │    reach this stage
+                     │                │
+                     │ Human reviews: │
+                     │ • Flagged price│
+                     │ • Duplicate?   │
+                     │ • Suspicious   │
+                     │   content      │
+                     └────────┬───────┘
+                              │
+                    ┌─────────┼──────────┐
+                    ▼         ▼          ▼
+              ┌──────────┐ ┌─────────┐ ┌──────────────┐
+              │ Approved │ │Rejected │ │ Request      │
+              │ → LIVE   │ │+ reason │ │ Changes      │
+              │          │ │(via WA) │ │ (via WA)     │
+              └──────────┘ └─────────┘ └──────────────┘
 ```
 
-**Stage 1 — Auto-Screening (Instant):**
-- AI content moderation scans description text for spam, prohibited terms, and suspicious patterns
-- Image moderation API flags inappropriate or irrelevant images
-- Duplicate detection compares against existing listings (location + price + type)
-- Price sanity check (flags unrealistically low or high values for the area)
+**How It Works:**
 
-**Stage 2 — Human Review (Admin Dashboard):**
-- Qualified listings enter a review queue visible on an admin dashboard
-- Human agent verifies: accuracy of details, image quality, legitimacy of contact info
-- Agent can: Approve, Reject (with reason), or Request Changes
-- Target SLA: Review within 2 hours during business hours
+1. **95% of listings** pass AI auto-screening and go live instantly — **zero human intervention**
+2. **~5% of listings** get flagged for one or more anomalies and enter an exception queue
+3. A human agent reviews **only flagged listings** from the admin dashboard
+4. The owner is notified via WhatsApp at every stage (submission received, published, or flagged for review)
 
-**Stage 3 — Publishing:**
-- Approved listings become "active" and visible to all users
-- Owner receives confirmation notification
-- Listing appears in search results and AI recommendations
+**AI Auto-Screening Capabilities:**
 
-This pipeline can be configured per client — some may prefer instant publishing with post-moderation, while others may require strict pre-approval.
+| Check | Method | Human Needed? |
+|-------|--------|---------------|
+| Missing fields | Rule-based validation | No |
+| Price outlier | Statistical model (area × type × size) | No — auto-passes if within range |
+| Duplicate listing | Fuzzy match on location + type + price | No — auto-blocks exact duplicates |
+| Image quality | AI vision model | No — auto-rejects inappropriate |
+| Spam/fraud text | NLP classification | No — auto-rejects spam patterns |
+| RERA disclosure | Rule-based checklist | No — prompts user for missing info |
+| Unusual pattern | Anomaly detection | **Yes — flags for human review** |
+
+**Configurable Automation Level:**
+The client can set the automation threshold:
+- **Full Auto** — everything passes AI screening, no human queue (fastest)
+- **Hybrid (Recommended)** — AI handles 95%, humans review flagged exceptions
+- **Moderated** — all listings enter human queue after AI pre-screening (strictest)
 
 ---
 
@@ -109,28 +136,50 @@ This pipeline can be configured per client — some may prefer instant publishin
 
 **Answer:**
 
-**Current State:**
-The current system collects owner name and contact number as self-declared information. This is standard for the initial listing phase.
+**Automated Verification Model — Designed for Bahrain:**
 
-**Production Roadmap — Ownership Verification:**
+| Tier | Verification Level | Method | Badge | Human Needed? |
+|------|--------------------|--------|-------|---------------|
+| **Basic** | Phone verified | OTP via WhatsApp (automated) | ✓ Phone Verified | **No** |
+| **Standard** | Identity verified | CPR (Central Population Registry) number + AI OCR of Bahraini ID card | ✓ Identity Verified | **No** |
+| **Premium** | Ownership verified | Title deed upload + cross-reference with SLRB (Survey & Land Registration Bureau) records | ✓ Ownership Verified | Minimal (edge cases) |
 
-We recommend a **tiered verification model**:
+**Implementation — Bahrain-Specific:**
 
-| Tier | Verification Level | Method | Badge |
-|------|--------------------|--------|-------|
-| **Basic** | Phone verified | OTP via SMS/WhatsApp | ✓ Phone Verified |
-| **Standard** | Identity verified | Government ID upload (Aadhaar/PAN) + AI OCR matching | ✓ Identity Verified |
-| **Premium** | Ownership verified | Property document upload (sale deed, tax receipt, encumbrance certificate) + manual review | ✓ Ownership Verified |
+1. **Phone Verification (Automated — Phase 1):**
+   - OTP sent to listed contact number via WhatsApp Business API
+   - User replies with OTP code in the same WhatsApp conversation
+   - Entire flow is automated — no human involvement
+   - Bahrain numbers validated against +973 format
 
-**Implementation Approach:**
+2. **Identity Verification (Automated — Phase 2):**
+   - User sends photo of Bahraini ID card (CPR) via WhatsApp
+   - AI-powered OCR (Arabic + English) extracts name, CPR number, and nationality
+   - Cross-references extracted name against the submitted owner name
+   - Automatic match → verified. Mismatch → flagged for human review
+   - Supports both Bahraini nationals and resident expat IDs
 
-1. **Phone Verification (Phase 1):** OTP sent to listed contact number via WhatsApp Business API or SMS gateway. This is the minimum recommended verification.
+3. **Ownership Verification (Minimal Human — Phase 3):**
+   - User uploads title deed or authorization letter via WhatsApp
+   - AI OCR extracts property details (plot number, block, area)
+   - Where available, cross-references with SLRB electronic records
+   - AI match → auto-verified. Unclear → routed to human agent
+   - Supports broker authorization (power of attorney / توكيل)
 
-2. **Identity Verification (Phase 2):** Integration with DigiLocker or third-party KYC APIs (e.g., Aadhaar verification via UIDAI sandbox). AI-powered OCR extracts and cross-references name from uploaded ID documents.
+**Trust Badges on Listings:**
+```
+┌─────────────────────────────────────────┐
+│ 🏠 3BR Villa in Amwaj Islands          │
+│ BHD 180,000                             │
+│                                         │
+│ ✓ Phone Verified  ✓ ID Verified         │
+│ ✓ Ownership Verified                    │
+│                                         │
+│ Trust Score: ████████░░ 85%             │
+└─────────────────────────────────────────┘
+```
 
-3. **Ownership Verification (Phase 3):** Property document upload with manual review by trained agents. Cross-reference with state land records APIs where available (e.g., Karnataka Bhoomi, Tamil Nadu Patta).
-
-**Verified listings will display trust badges**, and users can filter search results by verification level — increasing platform trust and conversion rates.
+Users can filter search results by verification level — increasing platform trust and conversion rates. Verified listings are prioritized in AI recommendations.
 
 ---
 
@@ -138,17 +187,13 @@ We recommend a **tiered verification model**:
 
 **Answer:**
 
-**Current Capabilities:**
-- **Removal:** The system supports listing deletion via `DELETE /api/properties/:id`, which also cleans up associated uploaded images from storage
-- **Status tracking:** Each property has a `status` field (currently `active` by default)
-
-**Production Roadmap — Full Lifecycle Management:**
+All listing lifecycle operations are available **via WhatsApp conversation** — owners manage their listings without needing to visit a website or dashboard:
 
 ```
          ┌──────────┐
-         │  DRAFT   │  (saved but not published)
+         │  DRAFT   │  (saved during conversation, not yet published)
          └────┬─────┘
-              │ submit
+              │ AI screening passes
               ▼
          ┌──────────┐
          │  ACTIVE  │  (live, visible in search)
@@ -165,21 +210,34 @@ We recommend a **tiered verification model**:
                       └──────────┘
 ```
 
-| Operation | Method | Who Can Do It | Audit Logged |
-|-----------|--------|---------------|-------------|
-| **Edit price** | PUT /api/properties/:id | Owner, Admin | Yes — old value recorded |
-| **Update description** | PUT /api/properties/:id | Owner, Admin | Yes |
-| **Add/remove images** | PATCH /api/properties/:id/images | Owner, Admin | Yes |
-| **Pause listing** | PATCH status → "paused" | Owner, Admin | Yes |
-| **Mark as sold/rented** | PATCH status → "sold" | Owner, Admin | Yes |
-| **Remove listing** | DELETE or status → "removed" | Owner, Admin | Yes |
-| **Auto-expire** | Cron job (90-day check) | System | Yes |
+**WhatsApp-Based Listing Management (No Dashboard Required):**
+
+| Operation | How Owner Does It | Human Needed? |
+|-----------|-------------------|---------------|
+| **Update price** | Sends "Change price to BHD 150,000" on WhatsApp | **No** — AI processes it |
+| **Update description** | Sends updated text or voice note | **No** — AI transcribes and updates |
+| **Add images** | Sends new photos on WhatsApp | **No** — auto-added to gallery |
+| **Remove images** | "Remove photo 3" | **No** — AI removes specified image |
+| **Pause listing** | "Hide my listing" / "أوقف الإعلان" | **No** — status → paused |
+| **Mark as sold** | "Property is sold" / "تم البيع" | **No** — status → sold |
+| **Reactivate** | "Show my listing again" | **No** — status → active |
+| **Delete listing** | "Delete my listing" | **No** — confirmed via OTP, then removed |
+| **Auto-expire** | System checks at 90 days | **No** — owner notified via WhatsApp to renew |
+
+**Automated Notifications (via WhatsApp):**
+
+| Event | Notification |
+|-------|-------------|
+| Listing goes live | "Your villa in Amwaj is now live! 🏠 View: [link]" |
+| Someone inquires | "New inquiry about your property from Ahmed. Reply to connect." |
+| Price reduced by owner | "Price updated to BHD 150,000. Listing refreshed in search." |
+| 7 days before expiry | "Your listing expires in 7 days. Reply 'Renew' to extend." |
+| Auto-expired | "Your listing has been paused. Reply 'Renew' to reactivate." |
 
 **Key Features:**
-- **Price change history:** Every price modification is logged with timestamp, enabling "Price reduced!" badges
-- **Auto-expiry:** Listings older than 90 days are auto-paused; owner receives notification to renew or remove
-- **Bulk operations:** Admin dashboard supports bulk status changes (e.g., remove all listings from a flagged user)
-- **Real-time sync:** Changes reflect immediately in search results and AI responses
+- **Price change history:** Every price modification is logged with timestamp, enabling "Price Reduced!" badges
+- **Bulk operations:** Admin dashboard supports bulk status changes for internal team
+- **Real-time sync:** Changes via WhatsApp reflect immediately in search results and AI responses
 
 ---
 
@@ -191,46 +249,89 @@ We recommend a **tiered verification model**:
 
 **Answer:**
 
-**Current AI Engine:**
-The system uses the **granite3.1-dense** language model (served via IVIS LABS API at `chat.ivislabs.in`), which has multilingual capabilities.
+This question is particularly important for the **Voice User Interface (VUI)** use case — where users speak to the system in Bahraini Arabic dialect via WhatsApp voice notes or voice calls.
 
-**Language Handling Strategy:**
+**Voice Pipeline Architecture:**
+
+```
+┌──────────────┐     ┌──────────────────┐     ┌──────────────┐     ┌──────────────┐
+│ User sends   │────▶│ Speech-to-Text   │────▶│ AI Agent     │────▶│ Text-to-Speech│
+│ voice note   │     │ (ASR Engine)     │     │ (NLU + Logic)│     │ (TTS Engine) │
+│ via WhatsApp │     │                  │     │              │     │              │
+│              │     │ Bahraini dialect │     │ Processes    │     │ Responds in  │
+│ 🎤 Arabic   │     │ aware            │     │ intent       │     │ Arabic/English│
+└──────────────┘     └──────────────────┘     └──────────────┘     └──────────────┘
+```
+
+**Speech-to-Text (ASR) — Bahraini Arabic Dialect Support:**
+
+| ASR Engine | Bahraini/Gulf Dialect Support | Notes |
+|------------|------------------------------|-------|
+| **Google Cloud Speech-to-Text** | ar-BH (Bahraini Arabic) locale | Best accuracy for Gulf dialects |
+| **Azure Speech Services** | Gulf Arabic model | Strong for mixed Arabic-English |
+| **OpenAI Whisper (Large-v3)** | Handles dialectal Arabic well | Self-hosted option, no data leaves our servers |
+| **Fallback** | MSA (Modern Standard Arabic) model | Works for most Gulf speakers |
+
+**Recommended: Google Cloud Speech-to-Text with `ar-BH` locale** — specifically trained on Bahraini Arabic speech patterns, with Azure as fallback.
+
+**Dialect-Specific Challenges & Solutions:**
+
+| Challenge | Bahraini Example | How We Handle It |
+|-----------|-----------------|-----------------|
+| Gulf pronunciation variations | "أبي" (abi) = "أريد" (I want) | Dialect-aware ASR model + intent mapping |
+| Code-switching (Arabic ↔ English) | "أبي villa في Amwaj" | Multi-language ASR mode processes both |
+| Local place names | "الصخير", "عوالي", "الجفير" | Custom vocabulary / phrase hints in ASR config |
+| Colloquial real estate terms | "فلّة" (villa), "ديرة" (area), "حوش" (courtyard) | Glossary injection in ASR and NLU |
+| Numbers in Arabic speech | "مية وخمسين ألف" (150,000) | Arabic number normalization pipeline |
+| Voice quality (background noise) | WhatsApp voice notes from outdoors | Noise reduction preprocessing |
+
+**Text Chat — Language Support Matrix:**
 
 | Scenario | Handling | Example |
 |----------|----------|---------|
-| **English** | Full support — primary language | "Show me 2BHK in Bangalore" |
-| **Arabic (MSA)** | Supported by granite3.1-dense | "أريد شقة في دبي" |
-| **Arabic dialects (Gulf, Levantine, Egyptian)** | Supported with context — model handles dialectal variations | "أبي شقة في الرياض" (Gulf dialect) |
-| **Mixed-language (code-switching)** | Supported — common in GCC markets | "I want شقة in جدة under 500K" |
-| **Transliterated Arabic** | Supported with fallback | "Abgha shaqa fi Riyadh" |
-| **Hindi/regional Indian** | Supported — for Indian market | "Bangalore mein villa dikhao" |
+| **English** | Full support | "Show me 2BR apartment in Juffair" |
+| **Arabic (MSA)** | Full support | "أريد شقة في السيف" |
+| **Bahraini dialect** | Full support (Gulf Arabic) | "أبي فلة في عمواج" |
+| **Khaleeji slang** | Mapped to standard terms | "الديرة" → location, "حلو" → good quality |
+| **Mixed Arabic-English** | Seamless switching | "I want شقة in الجفير under 500 BHD" |
+| **Transliterated Arabic** | Supported | "Abi shaqa fi Seef" |
+| **Hindi/Urdu** | Supported — large expat community in Bahrain | "Juffair mein apartment dikhao" |
+| **Filipino/Tagalog basics** | Common phrases supported | For Bahrain's Filipino community |
 
-**Real Estate Terminology Handling:**
+**Bahrain Real Estate Terminology Mapping:**
 
-The AI system prompt is enriched with domain-specific context:
+| Local Term (Arabic) | Local Term (English) | Standard Mapping |
+|---------------------|---------------------|-----------------|
+| شقة (shaqqa) | Flat, Apartment | Apartment |
+| فيلا / فلّة (filla) | Villa | Villa |
+| بيت (bait) | House | House |
+| أرض (ard) | Plot, Land | Plot |
+| مكتب (maktab) | Office | Office Space |
+| عمارة (imara) | Building | Residential Building |
+| ستوديو (studio) | Studio | Studio Apartment |
+| غرفة وصالة (ghurfa wa sala) | 1BR | 1 Bedroom |
+| حوش (hosh) | Courtyard/Compound | Compound |
+| دينار (dinar) / BHD | BHD | Bahraini Dinar |
+| إيجار (ijar) | Rent | Rental |
+| بيع (bay') | Sale | For Sale |
+| مفروش (mafroosh) | Furnished | Furnished |
+| RERA | RERA Bahrain | Real Estate Regulatory Authority |
 
-| Local Term | Standard Mapping |
-|------------|-----------------|
-| 2BHK, 3BHK | 2-bedroom, 3-bedroom apartment |
-| Flat | Apartment |
-| Plot, Site | Land parcel |
-| Crore, Lakh | Indian numbering (1 Cr = 10M, 1L = 100K) |
-| Duplex, Penthouse | Property sub-types |
-| Ground floor, G+2 | Floor/storey specification |
+**How Voice Input Flows:**
 
-**How It Works:**
-
-1. **User sends message** in any language or mixed-language format
-2. **AI proxy** forwards to granite3.1-dense with a system prompt that includes property context
-3. **Model processes** the query, understanding intent regardless of language
-4. **Fallback extraction:** If AI is unavailable, a rule-based keyword matcher handles common terms (English + transliterated) for property type, price, and location extraction
-5. **Response** is generated in the same language the user used
+1. **User sends voice note** on WhatsApp (Bahraini dialect)
+2. **WhatsApp Business API** delivers audio file to our backend
+3. **ASR Engine** (Google `ar-BH`) transcribes speech → Arabic text
+4. **NLU Pipeline** extracts intent + entities (property type, location, budget)
+5. **AI Agent** processes request against property database
+6. **Response generated** — text + optional TTS voice reply in Gulf Arabic
+7. **Sent back via WhatsApp** — text message + voice note (if voice mode)
 
 **Production Enhancements:**
-- Custom fine-tuning on GCC/Indian real estate conversation data
-- Glossary injection in system prompt for market-specific terms
-- Language detection to auto-set response language
-- Arabic RTL (right-to-left) UI support in chat interface
+- Custom ASR vocabulary for Bahrain neighborhoods, building names, and developer names (Diyar, Naseej, Reef Island, etc.)
+- Fine-tuning on Bahraini real estate conversation transcripts
+- User preference memory — if user speaks Arabic, all future responses are in Arabic
+- Arabic RTL (right-to-left) support in web chat interface
 
 ---
 
@@ -238,59 +339,88 @@ The AI system prompt is enriched with domain-specific context:
 
 **Answer:**
 
-The AI handles ambiguity through a **structured clarification approach:**
+The AI handles ambiguity through a **structured clarification approach** — designed for natural WhatsApp conversation in Arabic or English:
 
-**Scenario 1 — Unclear Requirements:**
+**Scenario 1 — Unclear Requirements (Voice or Text):**
 
 ```
-User: "I want something nice in a good area"
-AI:   "I'd love to help! Could you tell me:
-       • What type of property? (Apartment, Villa, House, Plot)
-       • Which city or area are you interested in?
-       • What's your budget range?
-       This will help me find the best options for you."
+User (voice, Bahraini Arabic): "أبي شي حلو في مكان زين"
+     (I want something nice in a good area)
+
+AI (WhatsApp reply):
+     "أهلاً! أقدر أساعدك 😊
+      بس أحتاج أعرف:
+      • شنو نوع العقار؟ (شقة، فيلا، بيت، أرض)
+      • أي منطقة تفضل؟ (السيف، الجفير، عمواج، الرفاع...)
+      • كم ميزانيتك بالدينار البحريني؟
+      كل ما تقولي أكثر، أقدر أساعدك أحسن!"
 ```
 
-The AI is instructed (via system prompt) to ask clarifying questions rather than guess when requirements are vague.
+The AI asks clarifying questions in the **same language and dialect** the user used — no forced language switching.
 
 **Scenario 2 — Conflicting Information:**
 
 ```
-User: "Show me villas under 20 lakhs in Bangalore"
-AI:   "Villas in Bangalore typically start at ₹80 lakhs and above.
-       I can show you:
-       • Apartments under ₹20 lakhs in Bangalore
-       • Plots under ₹20 lakhs in nearby areas
-       • Villas in your budget in other cities
-       Which would you prefer?"
+User: "أبي فيلا بـ 50 ألف دينار في عمواج"
+     (I want a villa for BHD 50,000 in Amwaj)
+
+AI:  "الفلل في عمواج عادةً تبدأ من 150 ألف دينار بحريني وفوق.
+      أقدر أساعدك بـ:
+      • شقق في عمواج ضمن ميزانيتك
+      • فلل بـ 50 ألف في الرفاع أو سار
+      • أراضي في ميزانيتك بمناطق قريبة
+      شنو تفضل؟"
+
+     (Villas in Amwaj typically start from BHD 150K+.
+      I can help with:
+      • Apartments in Amwaj within your budget
+      • Villas for BHD 50K in Riffa or Saar
+      • Plots within your budget in nearby areas
+      What do you prefer?)
 ```
 
-When criteria conflict with market reality, the AI acknowledges the mismatch and offers realistic alternatives.
+When criteria conflict with **Bahrain market reality**, the AI acknowledges the mismatch and offers realistic local alternatives — without making the user feel wrong.
 
 **Scenario 3 — Changing Requirements Mid-Conversation:**
 
 ```
-User: "Show me apartments in Chennai"
-AI:   [Shows Chennai apartments]
-User: "Actually, I want villas in Bangalore"
-AI:   [Switches context, shows Bangalore villas — no confusion]
+User: "Show me apartments in Juffair"
+AI:   [Shows Juffair apartments]
+User: "Actually, I want villas in Amwaj"
+AI:   [Switches context entirely, shows Amwaj villas — no confusion]
 ```
 
-Each user message is processed independently with the full property database context. The AI does not carry forward stale filters — it re-evaluates requirements from the latest message.
+Each user message is processed independently with the full property database context. The AI does not carry forward stale filters.
 
-**Scenario 4 — AI Service Unavailable:**
+**Scenario 4 — Voice Transcription Uncertainty:**
 
 ```
-If the AI API fails → automatic fallback to rule-based responses:
-• Keyword extraction for property type, location, price
-• Pre-defined response templates
+ASR Output: "أبي [unclear] في السيف" (confidence: 0.6 on middle word)
+
+AI:  "سمعتك تقول السيف — ممتاز! بس ما فهمت نوع العقار.
+      تبي شقة، فيلا، أو مكتب؟"
+
+     (I heard Seef — great! But I didn't catch the property type.
+      Do you want an apartment, villa, or office?)
+```
+
+When voice transcription confidence is low, the AI **acknowledges what it understood** and asks to clarify only the unclear part — rather than asking the user to repeat everything.
+
+**Scenario 5 — AI Service Unavailable:**
+
+```
+If the AI API fails → automatic fallback:
+• Rule-based keyword extraction (Arabic + English)
+• Pre-defined response templates in Arabic and English
 • Users still get functional property search results
+• Seamless — user doesn't know it's a fallback
 ```
 
 **Built-in Safeguards:**
 - **30-second timeout** on AI responses — prevents indefinite waiting
-- **Graceful fallback** — if the AI API returns an error, the system serves a helpful rule-based response instead of an error message
-- **Context awareness** — the AI receives a summary of available properties, so it never recommends properties that don't exist in the system
+- **Graceful fallback** — rule-based responses serve immediately if AI is slow
+- **Context awareness** — AI receives a summary of available Bahrain properties, so it never recommends properties that don't exist
+- **Voice retry** — if ASR fails, AI asks user to "send a text message instead" as a graceful fallback
 
 ---
 
@@ -302,61 +432,61 @@ If the AI API fails → automatic fallback to rule-based responses:
 
 **Answer:**
 
-**Current State:**
-Each property record includes:
-- `id` — unique identifier
-- `createdAt` — timestamp of creation
-- `status` — current status (active/inactive)
-- `ownerName` — who submitted the listing
+Yes. The production system maintains a **complete, immutable audit trail** — critical for RERA Bahrain compliance and client governance requirements.
 
-**Production Roadmap — Full Audit Trail:**
-
-We have designed a comprehensive audit logging system for the production database:
+**Production Audit Log Schema:**
 
 ```sql
--- Audit log table (production schema)
 CREATE TABLE audit_log (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    entity_type     VARCHAR(50) NOT NULL,     -- 'property', 'user', 'image'
-    entity_id       UUID NOT NULL,             -- ID of the affected record
-    action          VARCHAR(50) NOT NULL,      -- 'created', 'updated', 'approved',
-                                               -- 'rejected', 'deleted', 'published'
-    actor_type      VARCHAR(20) NOT NULL,      -- 'user', 'admin', 'system'
-    actor_id        UUID,                      -- Who performed the action
-    actor_name      VARCHAR(255),              -- Human-readable name
-    old_values      JSONB,                     -- Previous state (for updates)
-    new_values      JSONB,                     -- New state (for updates)
-    ip_address      INET,                      -- Source IP
-    user_agent      TEXT,                      -- Browser/client info
-    notes           TEXT,                      -- Rejection reason, admin notes
+    entity_type     VARCHAR(50) NOT NULL,     -- 'property', 'user', 'image', 'verification'
+    entity_id       UUID NOT NULL,
+    action          VARCHAR(50) NOT NULL,      -- 'created', 'updated', 'auto_approved',
+                                               -- 'flagged', 'human_approved', 'rejected',
+                                               -- 'published', 'expired', 'deleted'
+    actor_type      VARCHAR(20) NOT NULL,      -- 'user', 'admin', 'system', 'ai_agent'
+    actor_id        UUID,
+    actor_name      VARCHAR(255),
+    channel         VARCHAR(20),               -- 'whatsapp', 'web', 'voice', 'admin_dashboard'
+    old_values      JSONB,
+    new_values      JSONB,
+    ai_confidence   DECIMAL(3,2),              -- AI screening confidence score
+    ip_address      INET,
+    whatsapp_number VARCHAR(20),               -- Source WhatsApp number
+    notes           TEXT,                       -- Rejection reason, admin notes
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
-
-CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
-CREATE INDEX idx_audit_actor ON audit_log(actor_id);
-CREATE INDEX idx_audit_date ON audit_log(created_at);
 ```
 
-**What Gets Logged:**
+**What Gets Logged — Including Automated Actions:**
 
-| Event | Details Captured |
-|-------|-----------------|
-| **Listing created** | Who submitted, all field values, timestamp, IP |
-| **Listing edited** | Who edited, old values vs. new values, field-level diff |
-| **Images added/removed** | Which images, by whom, file metadata |
-| **Price changed** | Old price → new price, who changed it, when |
-| **Status changed** | Previous status → new status, reason |
-| **Review action** | Approved/rejected, by which admin, review notes |
-| **Listing published** | Final publish timestamp, approver ID |
-| **Listing removed** | Who removed, reason, whether user-initiated or admin action |
-| **Login/access** | Admin login events, dashboard access |
+| Event | Details Captured | Actor Type |
+|-------|-----------------|------------|
+| **Listing submitted** | All field values, WhatsApp number, timestamp | user |
+| **AI auto-screening passed** | Confidence scores, checks performed, result | ai_agent |
+| **AI auto-screening flagged** | Which check failed, confidence score, reason | ai_agent |
+| **Listing published (auto)** | Publish timestamp, AI approval scores | ai_agent |
+| **Listing published (human)** | Approver name, review notes | admin |
+| **Listing rejected** | Reason, by whom (AI or human), notification sent | ai_agent / admin |
+| **Price changed** | Old price → new price, channel (WhatsApp/web) | user |
+| **Images added/removed** | Which images, file metadata, channel | user |
+| **Status changed** | Previous → new status, reason, channel | user / system |
+| **Ownership verified** | Verification tier, documents checked, result | ai_agent / admin |
+| **Auto-expired** | 90-day rule triggered, notification sent | system |
+| **Listing removed** | Who requested, reason, confirmation method | user / admin |
+| **Admin login** | Login timestamp, IP, user agent | admin |
 
-**Audit Features:**
-- **Immutable log** — audit records cannot be edited or deleted (append-only)
-- **Searchable** — filter by entity, actor, date range, or action type
-- **Exportable** — CSV/PDF export for compliance reporting
-- **Retention** — 3 years minimum (configurable per regulatory requirements)
-- **Admin dashboard view** — timeline view showing complete lifecycle of any listing
+**Key Features:**
+- **Immutable** — audit records cannot be edited or deleted (append-only table, no UPDATE/DELETE permissions)
+- **AI actions tracked** — every automated decision is logged with confidence scores, so you can audit AI behavior
+- **Channel tracked** — shows whether action came from WhatsApp, web, voice, or admin dashboard
+- **Searchable** — filter by entity, actor, date range, action type, or channel
+- **Exportable** — CSV/PDF export for RERA compliance reporting
+- **Retention** — 5 years minimum (configurable per Bahrain regulatory requirements)
+- **Dashboard view** — timeline showing complete lifecycle of any listing, including all AI and human decisions
+
+**RERA Bahrain Compliance:**
+The audit trail is designed to satisfy Bahrain's Real Estate Regulatory Authority requirements for property listing transparency, including who listed, when, what changed, and who approved.
 
 ---
 
@@ -364,64 +494,69 @@ CREATE INDEX idx_audit_date ON audit_log(created_at);
 
 **Answer:**
 
-**Support Tiers & SLA:**
+**Support Tiers & SLA (Bahrain Time — AST, UTC+3):**
 
 | Severity | Description | Response Time | Resolution Target |
 |----------|-------------|---------------|-------------------|
-| **P0 — Critical** | System completely down, all users affected | **15 minutes** | 2 hours |
-| **P1 — High** | Major feature broken (e.g., cannot submit listings, AI not responding) | **30 minutes** | 4 hours |
-| **P2 — Medium** | Non-critical feature issue (e.g., image upload slow, UI glitch) | **2 hours** | 24 hours |
+| **P0 — Critical** | System down, all users affected, WhatsApp bot unresponsive | **15 minutes** | 2 hours |
+| **P1 — High** | Major feature broken (listings not publishing, AI not responding, voice not working) | **30 minutes** | 4 hours |
+| **P2 — Medium** | Non-critical issue (image upload slow, minor UI glitch, one dialect not recognized) | **2 hours** | 24 hours |
 | **P3 — Low** | Minor issue, cosmetic, feature request | **8 hours (business)** | Next sprint |
 
 **Available Support Channels:**
 
 | Channel | Availability | Best For |
 |---------|-------------|----------|
-| **WhatsApp Support Group** | 24/7 | P0/P1 — fastest response |
-| **Email** (support@ivislabs.in) | 24/7 (monitored) | P2/P3, documentation |
-| **Phone (Direct)** | Business hours + on-call | P0 escalation |
-| **Ticketing System** | 24/7 | Tracking, history, SLA compliance |
-| **Slack/Teams Channel** | Business hours | Development collaboration |
+| **WhatsApp Support Group** (dedicated to client) | **24/7** | P0/P1 — fastest response |
+| **Email** (support@ivislabs.in) | 24/7 (monitored) | P2/P3, documentation, formal requests |
+| **Phone (Direct — Bahrain local number)** | Business hours + on-call | P0 voice escalation |
+| **Ticketing System** | 24/7 | Tracking, history, SLA compliance proof |
 
-**Escalation Process:**
+**Escalation Process (Bahrain Time):**
 
 ```
-Time 0:        Alert detected (automated monitoring) or client reports
+Time 0:        Alert detected (automated monitoring) or client reports via WhatsApp
                    │
                    ▼
 Minutes 0–15:   L1 On-Call Engineer notified (WhatsApp + phone)
-                • Acknowledges issue
+                • Acknowledges issue on client WhatsApp group
                 • Begins diagnosis
                    │
                    ▼
 Minutes 15–30:  If not resolved → L2 Escalation
                 • Senior Engineer / Backend Lead
                 • Access to all production systems
+                • Client updated on WhatsApp with status
                    │
                    ▼
 Minutes 30–60:  If not resolved → L3 Escalation
                 • Engineering Manager + CTO
                 • War room mode (all hands)
+                • Client Account Manager joins WhatsApp group
                    │
                    ▼
 Hour 1–2:       If not resolved → Executive Escalation
-                • Client Account Manager informed
-                • External vendor support engaged (if infra issue)
-                • Interim workaround deployed if available
+                • IVIS LABS leadership informed
+                • External vendor support engaged (Meta/WhatsApp, cloud provider)
+                • Interim workaround deployed (e.g., fallback to web chat if WhatsApp is down)
 ```
 
-**Night & Weekend Coverage:**
-- Automated monitoring (UptimeRobot, PM2) runs 24/7 — alerts trigger immediately on downtime
-- On-call engineer rotation — one engineer always reachable via phone/WhatsApp
-- Critical (P0) issues trigger auto-alert to the on-call engineer
+**Night & Weekend Coverage (Bahrain-Aligned):**
+- Bahrain business hours: Sunday–Thursday, 8 AM – 5 PM AST
+- Automated monitoring runs **24/7** — alerts trigger on any downtime or error spike
+- On-call engineer rotation covers **Friday/Saturday** (Bahrain weekend) and nights
+- P0 issues trigger **auto-alert** to on-call engineer within 1 minute
 - Post-incident: Root Cause Analysis (RCA) document delivered within 48 hours
 
 **Proactive Monitoring:**
-The system includes automated health checks that detect issues before clients do:
-- `GET /api/health` — checked every 5 minutes
-- CPU/memory threshold alerts
-- Error rate spike detection
-- AI API availability monitoring
+| Monitor | Frequency | Alert Method |
+|---------|-----------|-------------|
+| API health check (`/api/health`) | Every 2 minutes | WhatsApp + SMS |
+| WhatsApp Business API connectivity | Every 5 minutes | WhatsApp + SMS |
+| AI API response time | Every 5 minutes | Email + dashboard |
+| Voice ASR service availability | Every 5 minutes | Email + dashboard |
+| CPU/memory thresholds | Real-time | Auto-alert at 80% |
+| Error rate spike | Real-time | Auto-alert at >1% |
 
 ---
 
@@ -429,77 +564,110 @@ The system includes automated health checks that detect issues before clients do
 
 **Answer:**
 
-**Current Architecture Advantage:**
+This is a critical concern since **WhatsApp Business API is the primary user channel**. Our architecture is specifically designed to **isolate Meta dependencies** and ensure continuity.
 
-The system is designed as a **platform-independent web application**. The WhatsApp-style interface is a **UI theme**, not an actual WhatsApp Business API integration. This means:
-
-> **The current system has ZERO dependency on Meta/WhatsApp infrastructure or policies.**
-
-The chat interface runs entirely on our own servers (`real.ivislabs.in` + `realbackend.ivislabs.in`) as a web application. No WhatsApp Business API, no Meta Graph API, no WhatsApp Cloud API is used.
-
-**This is a strategic advantage:**
-
-| Concern | Impact on Our System |
-|---------|---------------------|
-| Meta changes WhatsApp Business API pricing | **No impact** — we don't use it |
-| Meta enforces message template restrictions | **No impact** — our chat is web-based |
-| Meta rate-limits WhatsApp bots | **No impact** — our AI runs independently |
-| WhatsApp service outage | **No impact** — our platform stays online |
-| Meta changes data sharing policies | **No impact** — all data on our servers |
-
-**Future WhatsApp Integration (If Requested):**
-
-If a client requires actual WhatsApp Business API integration (so users can chat with the bot directly from WhatsApp), we have a **multi-channel architecture plan:**
+**WhatsApp Integration Architecture:**
 
 ```
-                    ┌───────────────┐
-                    │   Web Chat    │ ← Current (always available)
-                    │ (real.ivislabs)│
-                    └──────┬────────┘
-                           │
-                    ┌──────▼────────┐
-                    │  Unified      │
-                    │  Message      │
-                    │  Router       │
-                    └──────┬────────┘
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-       ┌──────▼───┐  ┌────▼─────┐  ┌──▼──────────┐
-       │ WhatsApp │  │ Telegram │  │  Instagram   │
-       │ Business │  │ Bot API  │  │  Messaging   │
-       │ API      │  │          │  │  API         │
-       └──────────┘  └──────────┘  └──────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                    User Channels                          │
+│                                                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │  WhatsApp   │  │  Web Chat   │  │  Voice (future) │  │
+│  │  (Primary)  │  │  (Fallback) │  │  (IVR/SIP)     │  │
+│  └──────┬──────┘  └──────┬──────┘  └───────┬─────────┘  │
+└─────────┼────────────────┼─────────────────┼─────────────┘
+          │                │                 │
+          ▼                ▼                 ▼
+┌─────────────────────────────────────────────────────────┐
+│              UNIFIED MESSAGE ROUTER                      │
+│         (Channel-agnostic message processing)            │
+│                                                          │
+│  • Normalizes messages from all channels                 │
+│  • Routes to AI agent pipeline                           │
+│  • Formats responses per channel                         │
+│  • Stores conversation in unified format                 │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│              AI AGENT PIPELINE                            │
+│         (Same logic regardless of channel)                │
+│                                                          │
+│  Intent Detection → Property Search → Response Gen       │
+└─────────────────────────────────────────────────────────┘
 ```
 
-**Adaptation Strategy for Policy Changes:**
+**Key Design Principle:** The AI logic, property database, and business rules have **zero dependency on WhatsApp**. WhatsApp is treated as a **replaceable transport layer**.
 
-| Scenario | Response Time | Action |
-|----------|---------------|--------|
-| Minor policy update (template changes) | **24–48 hours** | Update message templates, test, deploy |
-| Major policy change (API version deprecation) | **1–2 weeks** | Migrate to new API version, test across channels |
-| WhatsApp blocks our use case | **Immediate** | Traffic routes to web chat (zero downtime for users) |
-| New compliance requirement | **1 week** | Update data handling, add consent flows |
+**WhatsApp Business API Integration Details:**
 
-**Key Principle:** The web chat is always the **primary and fallback channel**. WhatsApp/Telegram/etc. are additional distribution channels. If any third-party channel goes down or changes policies, users can always access the full platform via the web interface with zero functionality loss.
+| Component | Provider | Fallback |
+|-----------|----------|----------|
+| **WhatsApp BSP** (Business Solution Provider) | Primary: Meta Cloud API (direct) | Secondary: Twilio / 360dialog |
+| **Message Templates** | Pre-approved templates for notifications | Web push notifications as fallback |
+| **Media Handling** | WhatsApp media download API | Direct upload via web |
+| **Voice Notes** | WhatsApp audio → ASR | Web-based voice input |
+| **Phone Number** | Bahrain number (+973) registered with Meta | Same number, different BSP if needed |
+
+**Adaptation Strategy for Meta Policy Changes:**
+
+| Scenario | Impact | Response Time | Action |
+|----------|--------|---------------|--------|
+| **Template approval changes** | Notification messages affected | **24–48 hours** | Rewrite templates, resubmit for approval, use session messages in interim |
+| **Pricing changes** (per-conversation fees) | Cost increase | **Immediate analysis, 1 week action** | Optimize message grouping, evaluate BSP alternatives, adjust pricing |
+| **Rate limiting enforced** | High-volume sends throttled | **24 hours** | Implement message queuing, prioritize by severity, batch notifications |
+| **API version deprecation** | Old endpoints stop working (Meta gives 12-month notice) | **2–4 weeks** (well before deadline) | Migrate to new API version, test, deploy |
+| **24-hour conversation window changed** | Limits when we can message users | **1 week** | Adjust notification timing, use approved templates outside window |
+| **WhatsApp blocks our number** | Total WhatsApp outage for our service | **< 1 hour** | Auto-failover to web chat + SMS notifications. Users get SMS: "Continue on web: [link]" |
+| **Meta shuts down WhatsApp Business API** (extreme) | Full channel loss | **1 week** | Migrate to Telegram Bot API / SMS / web-only. All data and AI logic intact. |
+| **New compliance requirement** (data residency, consent) | Must update data handling | **1–2 weeks** | Update consent flows, data storage location, privacy policy |
+
+**BSP (Business Solution Provider) Flexibility:**
+
+We use the WhatsApp Cloud API through a **BSP abstraction layer**, meaning we can switch providers without changing our application code:
+
+```
+Current:   Our Backend → Meta Cloud API (direct)
+Backup 1:  Our Backend → Twilio WhatsApp API
+Backup 2:  Our Backend → 360dialog API
+Backup 3:  Our Backend → MessageBird API
+
+All BSPs connect to the same WhatsApp number.
+Switch time: < 4 hours (configuration change, no code change)
+```
+
+**Automatic Failover — Zero Downtime Guarantee:**
+
+If WhatsApp becomes unavailable for any reason:
+
+1. **Instant:** System detects WhatsApp API failure (health check every 5 minutes)
+2. **< 5 minutes:** Users sending WhatsApp messages receive auto-reply: "We're temporarily available on web. Continue here: [web link]"
+3. **< 1 hour:** SMS gateway activated — sends property notifications via SMS to Bahrain numbers
+4. **Ongoing:** Web chat remains fully functional with all AI capabilities
+5. **On recovery:** WhatsApp reconnected, pending messages delivered, users notified
+
+**No user conversation data is lost** during a channel switch — all conversations are stored in our database, not in WhatsApp's infrastructure.
 
 ---
 
 ## Summary
 
-| Query Area | Current Status | Production-Ready |
-|------------|---------------|-----------------|
-| Field validation | Two-layer (frontend + backend) | Enhancing with geo + price sanity |
-| Human review/approval | Instant publish (MVP) | Three-stage pipeline designed |
-| Ownership verification | Self-declared | Tiered verification (OTP → ID → Docs) |
-| Listing updates | Create + Delete | Full lifecycle (edit, pause, expire, sold) |
-| Multilingual AI | granite3.1-dense (multilingual) | Adding fine-tuning + terminology |
-| AI ambiguity handling | Clarification prompts + fallback | Context-aware + market knowledge |
-| Audit trail | Timestamps + owner info | Full immutable audit log (JSONB) |
-| Support SLA | Standard monitoring | P0: 15min response, 24/7 on-call |
-| WhatsApp policy risk | Zero dependency (web-only) | Multi-channel architecture planned |
+| Query Area | Approach | Human Intervention |
+|------------|----------|-------------------|
+| Field validation | 3-layer: conversational + backend + AI screening | **None** — fully automated |
+| Listing approval | AI auto-screening (95% auto-approved) | **Minimal** — only flagged exceptions |
+| Ownership verification | Automated OTP + AI OCR of Bahraini CPR/title deed | **Minimal** — edge cases only |
+| Listing updates | WhatsApp conversational commands | **None** — owner self-service via WhatsApp |
+| Arabic voice input | ASR with `ar-BH` locale (Bahraini dialect) | **None** — fully automated pipeline |
+| AI ambiguity handling | Clarification in same dialect + graceful voice fallback | **None** — AI handles all scenarios |
+| Audit trail | Immutable log with AI confidence scores, RERA-compliant | **None** — auto-generated |
+| Support SLA | P0: 15-min response, 24/7, Bahrain-aligned | Dedicated support team |
+| WhatsApp policy risk | BSP abstraction + auto-failover to web + SMS | **< 1 hour** failover, no data loss |
 
 ---
 
 *Document prepared by IVIS LABS Engineering Team — February 2026*
+*Market: Kingdom of Bahrain*
+*Currency: Bahraini Dinar (BHD)*
 *For questions, contact: support@ivislabs.in*
