@@ -611,7 +611,521 @@ If WhatsApp becomes unavailable for any reason:
 
 ---
 
+---
+
+## Section 4: Security & Data Protection
+
+---
+
+### Q10. Is all sensitive data encrypted in transit and at rest, and how are encryption keys managed?
+
+**Answer:**
+
+Yes. The system enforces encryption at every layer where data is stored or transmitted.
+
+**Encryption in Transit:**
+
+| Path | Protocol | Standard |
+|------|----------|----------|
+| User ↔ Cloudflare | TLS 1.3 | AES-256-GCM, HTTPS enforced |
+| Cloudflare ↔ Origin server | TLS 1.2+ (Full Strict mode) | Origin certificate verified |
+| Backend ↔ PostgreSQL | TLS/SSL | `sslmode=require` enforced |
+| Backend ↔ S3/Object Storage | HTTPS | AWS Signature V4 |
+| Backend ↔ IVIS LABS AI API | HTTPS | TLS 1.2+ |
+| Backend ↔ WhatsApp Cloud API | HTTPS | Meta-enforced TLS 1.2+ |
+| Admin ↔ Server (SSH) | SSH | Ed25519 keys, no passwords |
+
+**HSTS** (HTTP Strict Transport Security) is enabled with a minimum 1-year max-age. All HTTP requests are redirected to HTTPS at the Cloudflare edge before reaching our servers. There is no unencrypted path.
+
+**Encryption at Rest:**
+
+| Data | Storage | Encryption | Key Management |
+|------|---------|-----------|----------------|
+| Database (PostgreSQL) | Server disk / RDS | AES-256 (dm-crypt / RDS native) | Provider-managed keys (AWS KMS for Option C) |
+| Property images | S3 / local disk | S3: SSE-S3 (AES-256) / Local: LUKS full-disk encryption | AWS-managed / OS-level |
+| Database backups | S3 | SSE-S3 (AES-256) | AWS KMS (auto-rotated annually) |
+| Environment secrets | Server env vars | Not stored in files or git | Loaded from encrypted secrets manager |
+| Audit logs | PostgreSQL | Same as database encryption | Same as database |
+
+**Key Management:**
+
+| Aspect | Approach |
+|--------|----------|
+| **Application secrets** (API keys, DB passwords) | Stored in environment variables, never in source code or git. For AWS deployment: AWS Secrets Manager with automatic rotation. |
+| **Database encryption keys** | AWS KMS (Option C) with automatic annual rotation. For VPS: LUKS with passphrase stored in separate secure location. |
+| **SSL/TLS certificates** | Let's Encrypt with automatic renewal via certbot (90-day cycle). Cloudflare edge certificates managed by Cloudflare. |
+| **SSH keys** | Ed25519 keys, generated per-engineer, passphrase-protected. Keys revoked immediately on team changes. |
+| **WhatsApp API tokens** | Stored in Secrets Manager, rotated every 90 days. Never exposed to frontend. |
+
+**What we do NOT store:**
+- No payment card data (no payment processing in scope)
+- No passwords in plaintext (bcrypt hashing for any admin accounts)
+- No API keys in client-side code
+- No encryption keys in source control
+
+---
+
+### Q11. What is your guaranteed uptime SLA %, and is it contractually backed?
+
+**Answer:**
+
+**Uptime Guarantee:**
+
+| Tier | SLA | Allowed Downtime/Year | Allowed Downtime/Month |
+|------|-----|----------------------|----------------------|
+| **Standard** | **99.5%** | 43.8 hours | 3.65 hours |
+| **Enhanced** (Option B/C) | **99.9%** | 8.76 hours | 43.2 minutes |
+| **Premium** (with failover) | **99.95%** | 4.38 hours | 21.6 minutes |
+
+**Yes, this is contractually backed.** The SLA is included in the service agreement with the following terms:
+
+**SLA Credit Schedule:**
+
+| Uptime Achieved | Service Credit |
+|-----------------|---------------|
+| 99.0% – 99.5% | 10% of monthly fee |
+| 95.0% – 99.0% | 25% of monthly fee |
+| 90.0% – 95.0% | 50% of monthly fee |
+| Below 90.0% | 100% of monthly fee |
+
+**How Uptime Is Measured:**
+- Monitored via **UptimeRobot** (external, independent) — checks `GET /api/health` every 2 minutes
+- Uptime = (Total minutes in month − Downtime minutes) / Total minutes in month × 100
+- **Excluded from downtime calculation:** scheduled maintenance windows (communicated 48 hours in advance, performed during Bahrain off-peak: Friday 2–6 AM AST), force majeure, client-caused outages
+
+**What Makes 99.9% Achievable:**
+
+| Architecture Feature | Downtime It Prevents |
+|---------------------|---------------------|
+| 2 app servers behind load balancer | Single server failure → zero downtime |
+| PostgreSQL primary + replica | DB failure → automatic failover |
+| PM2 cluster mode (auto-restart) | Process crash → restart in <2 seconds |
+| Cloudflare CDN | Static assets served even if origin is down |
+| Health check + auto-remove | Unhealthy server removed from LB pool within 30 seconds |
+| Zero-downtime deploys (PM2 reload) | Deployments cause zero interruption |
+
+**Honest caveat:** The 99.9% SLA covers our infrastructure and application layer. Third-party dependencies (WhatsApp Cloud API, IVIS LABS AI API) have their own SLAs and are excluded. If WhatsApp goes down globally, our web fallback activates but WhatsApp-specific uptime is Meta's responsibility.
+
+---
+
+### Q12. What are your defined RTO and RPO metrics, and when was DR last tested?
+
+**Answer:**
+
+| Metric | Target | Meaning |
+|--------|--------|---------|
+| **RTO** (Recovery Time Objective) | **1 hour** | Maximum time from disaster to service restored |
+| **RPO** (Recovery Point Objective) | **1 hour** (Option B/C) / **24 hours** (Option A) | Maximum data loss window |
+
+**RPO Breakdown by Data Type:**
+
+| Data | Backup Method | RPO | Explanation |
+|------|--------------|-----|-------------|
+| Database (PostgreSQL) | Streaming replication (Option B/C) | **Near-zero** | Replica is <1 second behind primary |
+| Database (PostgreSQL) | pg_dump to S3 | **1 hour** (hourly cron) | At most 1 hour of transactions lost |
+| Property images | S3 with versioning + cross-region replication | **Near-zero** | Images replicated in real-time |
+| Application code | Git (GitHub) | **Zero** | Every commit is on GitHub |
+| Conversation history | Database (same as above) | **1 hour** | Follows database RPO |
+| Audit logs | Database (same as above) | **1 hour** | Follows database RPO |
+
+**RTO Breakdown — Recovery Procedure:**
+
+| Step | Action | Time |
+|------|--------|------|
+| 1 | Detect failure (automated monitoring) | 2 minutes |
+| 2 | On-call engineer alerted | 1 minute |
+| 3 | Assess: failover to replica or provision new server | 5 minutes |
+| 4 | **If replica available:** promote replica to primary, update DNS | 10 minutes |
+| 5 | **If new server needed:** provision from snapshot, restore pg_dump | 30–45 minutes |
+| 6 | DNS propagation (Cloudflare, low TTL) | 2–5 minutes |
+| 7 | Verify via health check + smoke tests | 5 minutes |
+| **Total RTO** | | **25 minutes (failover) / 60 minutes (full rebuild)** |
+
+**DR Testing:**
+
+| Test Type | Frequency | Last Tested | Next Scheduled |
+|-----------|-----------|-------------|----------------|
+| Backup restore verification | Monthly | — | Post-launch Month 1 |
+| Failover drill (replica promotion) | Quarterly | — | Post-launch Month 3 |
+| Full disaster recovery simulation | Bi-annually | — | Post-launch Month 6 |
+| Runbook walkthrough | At onboarding | — | At project kickoff |
+
+**Honest note:** Since the system is not yet in production, DR has not been tested against live data. The first DR test will be executed within 30 days of production launch, and results will be shared with the client. Quarterly DR drills will be documented and the report made available.
+
+---
+
+### Q13. Is the production database fully isolated in a private subnet with no public exposure?
+
+**Answer:**
+
+**Yes.** The database has zero public exposure in all deployment options.
+
+**Network Isolation Architecture:**
+
+```
+                      INTERNET
+                          │
+                    ┌─────▼─────┐
+                    │ Cloudflare │  (DDoS, WAF, CDN)
+                    └─────┬─────┘
+                          │ HTTPS only (443)
+                          │
+                    ┌─────▼──────────┐
+                    │  PUBLIC SUBNET  │
+                    │                │
+                    │  Nginx (LB)   │  ← Only component with public IP
+                    │  Port 80, 443 │
+                    └─────┬──────────┘
+                          │ Internal only
+                          │
+                    ┌─────▼──────────┐
+                    │  APP SUBNET    │
+                    │  (private)     │
+                    │                │
+                    │  Node.js API   │  ← No public IP
+                    │  PM2 workers   │  ← Accepts traffic only from Nginx
+                    └─────┬──────────┘
+                          │ Internal only (port 5432)
+                          │
+                    ┌─────▼──────────┐
+                    │  DATA SUBNET   │
+                    │  (private)     │
+                    │                │
+                    │  PostgreSQL    │  ← No public IP
+                    │  Primary +    │  ← No internet access
+                    │  Replica      │  ← Accepts connections ONLY from app subnet
+                    │                │
+                    │  S3/MinIO     │  ← Accessible only via internal endpoint
+                    └────────────────┘
+```
+
+**Isolation Measures:**
+
+| Layer | Control |
+|-------|---------|
+| **Firewall (UFW/Security Group)** | PostgreSQL port 5432 accepts connections only from app server IPs |
+| **Bind address** | PostgreSQL `listen_addresses` set to private IP only (e.g., `10.0.2.x`), never `0.0.0.0` |
+| **No public IP** | DB server has no public IP assigned. Cannot be reached from the internet. |
+| **VPC / Private Network** | All servers in same private network (DigitalOcean VPC / AWS VPC). DB in isolated data subnet. |
+| **SSH tunnel only** | DBA access to database is via SSH tunnel through bastion/jump host — never direct connection |
+| **pg_hba.conf** | PostgreSQL client authentication restricted to app server IP range + localhost only |
+| **AWS Option C** | RDS in private subnet, no public accessibility flag. Access via VPC security group only. |
+
+**No database port is exposed to the public internet under any deployment option.**
+
+---
+
+## Section 5: Access Control & AI Governance
+
+---
+
+### Q14. Is MFA mandatory for all privileged/admin access with enforced RBAC?
+
+**Answer:**
+
+**Yes. MFA is mandatory for all privileged access. RBAC is enforced at every layer.**
+
+**MFA Enforcement:**
+
+| Access Point | MFA Method | Mandatory? |
+|-------------|-----------|-----------|
+| **Admin dashboard** (listing review, audit) | TOTP (Google Authenticator / Authy) | **Yes** |
+| **Server SSH access** | SSH key + passphrase (2-factor: possession + knowledge) | **Yes** |
+| **GitHub repository** | GitHub-enforced MFA (TOTP or security key) | **Yes** |
+| **AWS Console** (Option C) | AWS IAM MFA (virtual or hardware) | **Yes** |
+| **Database direct access** | SSH tunnel + DB password (2-step) | **Yes** |
+| **Cloudflare dashboard** | Cloudflare MFA | **Yes** |
+| **Meta Business Manager** (WhatsApp) | Meta-enforced 2FA | **Yes** |
+
+**RBAC (Role-Based Access Control):**
+
+| Role | Permissions | MFA | Count |
+|------|------------|-----|-------|
+| **Super Admin** | Full system access, user management, configuration, audit log export | Required | 1–2 |
+| **Admin** | Review flagged listings, approve/reject, view audit logs, manage templates | Required | 2–3 |
+| **Agent** | View exception queue, review listings assigned to them, respond to escalations | Required | 1–2 |
+| **API Service Account** | Backend-to-database, backend-to-WhatsApp (no human login) | N/A (key-based) | Automated |
+| **Read-Only Auditor** | View audit logs, export reports, no modify permissions | Required | As needed |
+
+**Access Control Policies:**
+- **Principle of least privilege** — each role has only the permissions it needs
+- **No shared accounts** — every admin has an individual account
+- **Session timeout** — admin dashboard sessions expire after 30 minutes of inactivity
+- **IP whitelisting** (optional) — admin dashboard can be restricted to specific IPs
+- **Access logging** — every admin login, action, and logout is recorded in the audit trail
+- **Offboarding** — access is revoked within 1 hour of team member departure
+
+---
+
+### Q15. Can ownership verification be made mandatory before any listing is published?
+
+**Answer:**
+
+**Yes. This is a configurable policy switch.**
+
+The system supports three verification enforcement levels that the client can set:
+
+| Mode | Behavior | Best For |
+|------|----------|----------|
+| **Optional** | Listings publish without verification. Verified listings get trust badges. | Maximum listing volume, marketplace growth phase |
+| **Phone Required** | Listing only publishes after phone OTP is verified via WhatsApp. No additional docs needed. | Balanced — fraud prevention with low friction |
+| **Full Verification Required** | Listing only publishes after phone OTP + CPR/ID verification + title deed upload are all completed | Maximum trust, premium marketplace, RERA-strict compliance |
+
+**How "Full Verification Required" Works:**
+
+```
+User submits listing via WhatsApp
+        │
+        ▼
+┌────────────────┐
+│ AI collects    │
+│ property data  │
+│ + images       │
+└───────┬────────┘
+        │
+        ▼
+┌────────────────┐     ┌────────────────┐     ┌────────────────┐
+│ Step 1:        │────▶│ Step 2:        │────▶│ Step 3:        │
+│ Phone OTP      │     │ Send ID photo  │     │ Upload title   │
+│ (automated)    │     │ (AI OCR match) │     │ deed / توكيل   │
+│                │     │                │     │ (AI + human)   │
+│ ✓ Verified     │     │ ✓ Verified     │     │ ✓ Verified     │
+└────────────────┘     └────────────────┘     └────────────────┘
+                                                      │
+                                                      ▼
+                                              ┌────────────────┐
+                                              │ ALL 3 verified │
+                                              │ → Listing      │
+                                              │   PUBLISHED    │
+                                              └────────────────┘
+```
+
+If the client enables "Full Verification Required," **no listing can go live until all verification steps are complete.** The listing remains in "pending_verification" status, and the owner receives WhatsApp reminders to complete remaining steps.
+
+This is a **platform-level configuration** — the client sets it once, and it applies to all listings.
+
+---
+
+### Q16. Is there a mandatory pre-publish confirmation mode to prevent AI auto-approval?
+
+**Answer:**
+
+**Yes. The client controls whether AI auto-approval is enabled or disabled.**
+
+Three configurable modes (as described in Q2):
+
+| Mode | AI Auto-Approval | Human Review | Use Case |
+|------|------------------|-------------|----------|
+| **Full Auto** | Enabled — all listings that pass screening go live instantly | None | Fastest time-to-market |
+| **Hybrid** (default) | Enabled for listings with confidence score >0.85. Flagged listings go to human queue. | Only exceptions (~5%) | Balanced |
+| **Moderated** | **Disabled** — AI screens but does NOT publish. All listings require explicit human approval. | **All listings** | Maximum control |
+
+**In "Moderated" mode:**
+
+```
+User submits listing
+        │
+        ▼
+┌────────────────┐
+│ AI screens     │
+│ (instant)      │
+│                │
+│ Attaches:      │
+│ • Confidence   │
+│   score        │
+│ • Risk flags   │
+│ • Duplicate    │
+│   check result │
+└───────┬────────┘
+        │
+        ▼
+┌────────────────────────────┐
+│ ADMIN REVIEW QUEUE         │
+│                            │
+│ Every listing appears here │
+│ with AI's assessment.      │
+│                            │
+│ Admin sees:                │
+│ • Listing details          │
+│ • AI confidence: 0.92     │
+│ • Flags: None              │
+│ • AI recommendation:       │
+│   "Approve"                │
+│                            │
+│ Admin clicks:              │
+│ [✓ Approve] [✗ Reject]    │
+│ [↩ Request Changes]       │
+└────────────────────────────┘
+```
+
+**The AI becomes an assistant, not a decision-maker.** It pre-screens and provides a recommendation, but the final publish action is always a human click.
+
+The client can switch between modes at any time from the admin dashboard — no code changes required.
+
+---
+
+### Q17. What triggers human takeover, and what confidence threshold governs AI auto-approval?
+
+**Answer:**
+
+**AI Confidence Scoring:**
+
+Every AI auto-screening decision produces a **composite confidence score** from 0.00 to 1.00:
+
+| Score Range | Classification | Action |
+|-------------|---------------|--------|
+| **0.85 – 1.00** | High confidence — listing is legitimate | **Auto-approved** (in Full Auto / Hybrid mode) |
+| **0.60 – 0.84** | Medium confidence — one or more checks uncertain | **Routed to human review queue** |
+| **0.00 – 0.59** | Low confidence — likely spam, fraud, or policy violation | **Auto-rejected** with reason sent to owner via WhatsApp |
+
+**The 0.85 threshold is configurable by the client** — they can raise it (e.g., 0.95 for stricter control) or lower it (e.g., 0.70 for more automation).
+
+**What Triggers Human Takeover:**
+
+| Trigger | Example | Confidence Impact |
+|---------|---------|-------------------|
+| **Price anomaly** | Villa in Amwaj listed at BHD 5,000 (market avg: BHD 150,000+) | Drops to 0.40–0.60 |
+| **Duplicate suspected** | Same location + type + similar price within 5% of existing listing | Drops to 0.50–0.70 |
+| **Image flagged** | AI vision model flags image as potentially inappropriate or irrelevant (e.g., car photo in property listing) | Drops to 0.30–0.60 |
+| **Content flagged** | Description contains suspicious patterns, excessive promotional language, or prohibited terms | Drops to 0.40–0.65 |
+| **ID mismatch** | OCR-extracted name from CPR doesn't match submitted owner name | Drops to 0.20–0.50 |
+| **High-value listing** | Property price above BHD 500,000 (configurable threshold) | Auto-routed to human regardless of score |
+| **New user, first listing** | No prior verified listings from this phone number | Score capped at 0.80 (forces human review in Hybrid mode) |
+| **User explicitly requests** | Owner says "I want a human to review this" | Routed to human |
+| **Multiple rapid submissions** | >3 listings from same number within 1 hour | All routed to human |
+
+**Human Takeover Flow:**
+
+```
+AI flags listing (confidence < 0.85)
+        │
+        ▼
+┌─────────────────────────┐
+│ Notification sent to    │
+│ admin via:              │
+│ • Admin dashboard alert │
+│ • WhatsApp notification │
+│ • Email (P2+)           │
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ Admin reviews listing   │
+│ with AI's notes:        │
+│                         │
+│ "Price is 97% below     │
+│  market average for     │
+│  villas in Amwaj.       │
+│  Confidence: 0.42       │
+│  Recommendation: Review │
+│  price with owner."     │
+│                         │
+│ [Approve] [Reject]      │
+│ [Request Changes]       │
+└─────────────────────────┘
+```
+
+**The AI always explains WHY it flagged a listing** — the human reviewer never sees a flag without context.
+
+---
+
+## Section 6: Performance & Capacity
+
+---
+
+### Q18. What is the maximum supported concurrent user and listing volume under peak load?
+
+**Answer:**
+
+| Metric | Option A (Single VPS) | Option B (Multi-Server) | Option C (AWS Auto-Scale) |
+|--------|----------------------|------------------------|--------------------------|
+| **Concurrent users** | ~80 | **150–200** | **500+** (auto-scales) |
+| **Requests/second** | ~15 | **30–50** | **100+** |
+| **Total listings supported** | 5,000 | **20,000** | **100,000+** |
+| **Image storage** | 100 GB (local) | 500 GB (S3) | Unlimited (S3) |
+| **AI requests/minute** | ~10 | ~20 | ~50 |
+
+**Load Testing Benchmarks (Target — Option B):**
+
+| Scenario | Target | Measurement |
+|----------|--------|-------------|
+| 100 concurrent users browsing listings | API response <200ms (p95) | Verified via k6/Artillery |
+| 50 concurrent users searching properties | API response <500ms (p95) | Including AI processing |
+| 20 concurrent image uploads (3 images each) | Complete within 5 seconds | Including S3 upload |
+| 100 simultaneous WhatsApp messages | All processed within 10 seconds | End-to-end including AI |
+| 10,000 listings in database | Search response <300ms | With proper indexing |
+
+**Bottleneck Analysis:**
+
+| Component | Bottleneck At | Mitigation |
+|-----------|--------------|-----------|
+| **Node.js (PM2 cluster)** | ~50 req/s per worker (CPU-bound AI calls) | Add workers / servers |
+| **PostgreSQL** | ~5,000 queries/second (read-heavy workload) | Read replicas, connection pooling |
+| **AI API (upstream)** | 1–5 second latency per request | Response caching (Redis), queue overflow requests |
+| **Image uploads** | Disk I/O at ~20 concurrent uploads | S3 direct upload, CDN offload |
+| **WhatsApp API** | Meta rate limit: 80 messages/second (Tier 1) | Message queuing, batch notifications |
+
+**Scaling Path When Limits Are Hit:**
+
+| Concurrent Users | Action Required |
+|-----------------|----------------|
+| 0–80 | Option A (single VPS) — no changes needed |
+| 80–200 | Option B (2 app servers + LB) — horizontal scale |
+| 200–500 | Add 2 more app servers, Redis cache, read replicas |
+| 500+ | Option C (AWS auto-scaling group, 2–10 instances) |
+
+---
+
+## Section 7: Legal & Liability
+
+---
+
+### Q19. How is legal liability distributed in case of AI misclassification or fraudulent verification?
+
+**Answer:**
+
+This is a critical governance question. We recommend the following liability framework, to be formalized in the service agreement:
+
+**Liability Distribution Model:**
+
+| Scenario | Who Is Liable | Rationale |
+|----------|---------------|-----------|
+| **AI auto-approves a fraudulent listing** (fake price, fake photos) | **Platform operator (client)** — mitigated by insurance + configurable controls | The client chooses the automation level (Full Auto vs. Hybrid vs. Moderated). Enabling auto-approval is the client's policy decision. |
+| **AI auto-rejects a legitimate listing** (false positive) | **IVIS LABS** — SLA obligation to maintain <5% false positive rate | We are responsible for AI model accuracy. False rejection costs the user a delay, not a financial loss. |
+| **Fraudulent documents pass AI OCR verification** (forged title deed) | **Shared** — IVIS LABS for OCR accuracy, client for accepting automated verification | AI OCR provides a confidence score. If the client sets "Full Verification Required" with human review for documents, IVIS LABS liability is limited to OCR accuracy, not the human decision. |
+| **User submits listing under someone else's name** | **The submitting user** — platform ToS holds the user responsible for data accuracy | Platform provides verification tools but cannot guarantee intent. Terms of Service must state users are responsible for the accuracy of submitted information. |
+| **Data breach exposing user PII** | **IVIS LABS** (technical liability) + **Client** (data controller liability) | IVIS LABS is the data processor; client is the data controller under Bahrain PDPL. Both have obligations. |
+| **WhatsApp message sent to wrong recipient** | **IVIS LABS** if caused by a system bug; **Meta** if caused by WhatsApp API behavior | Covered by engineering SLA and WhatsApp Business API ToS. |
+
+**Risk Mitigation Measures Built Into the Platform:**
+
+| Risk | Mitigation |
+|------|-----------|
+| AI approves bad listing | Configurable confidence threshold — client can require human review for all listings |
+| Fraudulent verification | Multi-tier verification (OTP + ID + deed). Client can mandate all 3 before publishing. |
+| User disputes | Full audit trail proves exactly what was submitted, when, by whom, and how it was approved |
+| Regulatory action (RERA) | Audit logs are exportable, RERA-compliant, 5-year retention |
+| Data breach | Encryption at rest + in transit, private subnets, MFA, RBAC, minimal PII collection |
+
+**Recommended Contractual Terms:**
+
+1. **Limitation of liability clause** — IVIS LABS liability capped at 12 months of service fees for any single incident
+2. **AI disclaimer** — service agreement states AI screening is an assistive tool, not a guarantee. Final publishing responsibility rests with the policy chosen by the client (auto vs. moderated)
+3. **Indemnification** — mutual indemnification: IVIS LABS indemnifies for platform defects; client indemnifies for content accuracy and user-submitted data
+4. **Insurance recommendation** — client should carry Professional Indemnity Insurance and Cyber Liability Insurance
+5. **Bahrain PDPL compliance** — data processing agreement (DPA) attached to service contract, defining roles, data flows, and breach notification obligations (72-hour notification per Bahrain PDPL)
+6. **Force majeure** — covers third-party failures (Meta WhatsApp outage, AWS region failure, government-mandated shutdown)
+
+**Bahrain Legal Framework:**
+- **Bahrain Personal Data Protection Law (PDPL)** — Law No. 30 of 2018. Governs PII handling. Requires consent, purpose limitation, data breach notification.
+- **RERA Bahrain regulations** — governs property listing accuracy and broker licensing. Audit trail satisfies RERA inspection requirements.
+- **Electronic Transactions Law** — Law No. 54 of 2018. Provides legal recognition for electronic records and digital signatures used in the platform.
+
+---
+
 ## Summary
+
+### Section 1–3: Listing, AI & Support
 
 | Query Area | Approach | Human Intervention |
 |------------|----------|-------------------|
@@ -625,9 +1139,25 @@ If WhatsApp becomes unavailable for any reason:
 | Support SLA | P0: 15-min response, 24/7, Bahrain-aligned | Dedicated support team |
 | WhatsApp policy risk | BSP abstraction + auto-failover to web + SMS | **< 1 hour** failover, no data loss |
 
+### Section 4–7: Security, Governance, Performance & Legal
+
+| Query Area | Approach |
+|------------|----------|
+| Encryption | TLS 1.3 in transit, AES-256 at rest, keys via AWS KMS / Secrets Manager |
+| Uptime SLA | **99.9%** contractually backed with service credits |
+| RTO / RPO | RTO: 1 hour, RPO: 1 hour (near-zero with streaming replication) |
+| DB isolation | Private subnet, no public IP, firewall + pg_hba.conf restricted |
+| MFA + RBAC | MFA mandatory for all admin access, 5 defined roles with least privilege |
+| Mandatory verification | Configurable: Optional / Phone Required / Full Verification Required |
+| Pre-publish confirmation | Configurable: Full Auto / Hybrid / Moderated (all-human review) |
+| AI confidence threshold | Default 0.85, client-adjustable. 9 specific triggers for human takeover. |
+| Peak capacity | 150–200 concurrent (Option B), 500+ (Option C auto-scale) |
+| Legal liability | Distributed model with configurable controls, PDPL compliance, mutual indemnification |
+
 ---
 
 *Document prepared by IVIS LABS Engineering Team — February 2026*
 *Market: Kingdom of Bahrain*
 *Currency: Bahraini Dinar (BHD)*
+*Regulatory Framework: Bahrain PDPL (Law 30/2018), RERA Bahrain, Electronic Transactions Law (Law 54/2018)*
 *For questions, contact: support@ivislabs.in*
