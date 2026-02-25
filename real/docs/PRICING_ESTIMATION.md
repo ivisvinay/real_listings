@@ -1,10 +1,10 @@
 # IVIS Property Listings — Pricing & Budget Estimation
 
-**Version:** 3.0
+**Version:** 3.1
 **Date:** February 2026
 **Market:** Kingdom of Bahrain
 **Target:** 50–100 Concurrent Users, Production Deployment
-**Currency:** Bahraini Dinar (BHD) and USD ($) — 1 BHD ≈ $2.65
+**Currency:** Bahraini Dinar (BHD)
 
 ---
 
@@ -54,7 +54,7 @@ The IVIS Property Listings platform can be offered under **four pricing models**
 
 The client pays a one-time fee for the complete platform. IVIS delivers the source code, documentation, and deployment guide. The client manages their own hosting, API subscriptions, and ongoing operations.
 
-**One-Time Fee: BHD 6,250 ($16,563)**
+**One-Time Fee: BHD 6,250**
 
 | Deliverable | Included |
 |-------------|----------|
@@ -76,37 +76,37 @@ The client pays a one-time fee for the complete platform. IVIS delivers the sour
 
 | Item | Option A (Budget) | Option B (Recommended) | Option C (AWS Bahrain) |
 |------|-------------------|----------------------|-------------------------------|
-| Hosting (VPS / Cloud) | BHD 10 ($27) | BHD 36 ($95) | BHD 58 ($154) |
-| WhatsApp Business API | BHD 19 ($50) | BHD 19 ($50) | BHD 19 ($50) |
-| AI API Subscription | BHD 13 ($34) | BHD 13 ($34) | BHD 13 ($34) |
-| Third-Party Services | BHD 6 ($16) | BHD 9 ($24) | BHD 6 ($16) |
-| **Total (client manages)** | **BHD 48 ($127)** | **BHD 77 ($204)** | **BHD 96 ($254)** |
+| Hosting (VPS / Cloud) | BHD 10 | BHD 36 | BHD 58 |
+| WhatsApp Business API | BHD 19 | BHD 19 | BHD 19 |
+| AI API Subscription | BHD 13 | BHD 13 | BHD 13 |
+| Third-Party Services | BHD 6 | BHD 9 | BHD 6 |
+| **Total (client manages)** | **BHD 48** | **BHD 77** | **BHD 96** |
 
 **Optional Annual Maintenance Contract (AMC):**
 
-| AMC Tier | What's Included | Hours/Month | BHD/Month | $/Month |
-|----------|----------------|-------------|-----------|---------|
-| Basic | Security patches, critical bug fixes | 2 | BHD 40 | $106 |
-| Standard | Above + bug fixes, WhatsApp template mgmt, monitoring | 6 | BHD 115 | $305 |
-| Premium | Above + feature improvements, priority support, performance tuning | 12 | BHD 225 | $596 |
+| AMC Tier | What's Included | Hours/Month | BHD/Month |
+|----------|----------------|-------------|-----------|
+| Basic | Security patches, critical bug fixes | 2 | BHD 40 |
+| Standard | Above + bug fixes, WhatsApp template mgmt, monitoring | 6 | BHD 115 |
+| Premium | Above + feature improvements, priority support, performance tuning | 12 | BHD 225 |
 
 **Year 1 Totals (Option B Infrastructure):**
 
-| Configuration | Year 1 (BHD) | Year 1 ($) |
-|---------------|-------------|-----------|
-| Without AMC | BHD 7,174 | $19,011 |
-| With Basic AMC | BHD 7,654 | $20,283 |
-| With Standard AMC | BHD 8,554 | $22,668 |
-| With Premium AMC | BHD 8,874 | $23,516 |
+| Configuration | Year 1 |
+|---------------|--------|
+| Without AMC | BHD 7,174 |
+| With Basic AMC | BHD 7,654 |
+| With Standard AMC | BHD 8,554 |
+| With Premium AMC | BHD 8,874 |
 
 **Year 2 Totals (Option B Infrastructure):**
 
-| Configuration | Year 2 (BHD) | Year 2 ($) |
-|---------------|-------------|-----------|
-| Without AMC | BHD 924 | $2,449 |
-| With Basic AMC | BHD 1,404 | $3,721 |
-| With Standard AMC | BHD 2,304 | $6,106 |
-| With Premium AMC | BHD 3,624 | $9,604 |
+| Configuration | Year 2 |
+|---------------|--------|
+| Without AMC | BHD 924 |
+| With Basic AMC | BHD 1,404 |
+| With Standard AMC | BHD 2,304 |
+| With Premium AMC | BHD 3,624 |
 
 ---
 
@@ -114,7 +114,7 @@ The client pays a one-time fee for the complete platform. IVIS delivers the sour
 
 IVIS delivers the complete platform AND manages all infrastructure, hosting, APIs, and operations for the first 12 months. The client receives a fully running production system with zero operational burden.
 
-**One-Time Fee: BHD 9,750 ($25,838)**
+**One-Time Fee: BHD 9,750**
 
 | Deliverable | Included |
 |-------------|----------|
@@ -133,23 +133,23 @@ IVIS delivers the complete platform AND manages all infrastructure, hosting, API
 
 **Year 2 Renewal (Managed Operations):**
 
-| Component | Monthly (BHD) | Annual (BHD) | Annual ($) |
-|-----------|--------------|-------------|-----------|
-| Infrastructure (Option B) | BHD 36 | BHD 432 | $1,145 |
-| WhatsApp Business API | BHD 19 | BHD 228 | $604 |
-| AI API | BHD 13 | BHD 156 | $413 |
-| Third-Party Services | BHD 9 | BHD 108 | $286 |
-| Engineering Operations (11 hrs) | BHD 113 | BHD 1,356 | $3,593 |
-| Human Agent (4 hrs) | BHD 32 | BHD 384 | $1,018 |
-| **Total Year 2** | **BHD 222/mo** | **BHD 2,664** | **$7,060** |
+| Component | Monthly | Annual |
+|-----------|---------|--------|
+| Infrastructure (Option B) | BHD 36 | BHD 432 |
+| WhatsApp Business API | BHD 19 | BHD 228 |
+| AI API | BHD 13 | BHD 156 |
+| Third-Party Services | BHD 9 | BHD 108 |
+| Engineering Operations (11 hrs) | BHD 113 | BHD 1,356 |
+| Human Agent (4 hrs) | BHD 32 | BHD 384 |
+| **Total Year 2** | **BHD 222/mo** | **BHD 2,664** |
 
 **Summary:**
 
-| Period | BHD | $ |
-|--------|-----|---|
-| **Year 1 (all-inclusive)** | **BHD 9,750** | **$25,838** |
-| **Year 2 (renewal)** | **BHD 2,664** | **$7,060** |
-| **Year 3 (renewal)** | **BHD 2,664** | **$7,060** |
+| Period | BHD |
+|--------|-----|
+| **Year 1 (all-inclusive)** | **BHD 9,750** |
+| **Year 2 (renewal)** | **BHD 2,664** |
+| **Year 3 (renewal)** | **BHD 2,664** |
 
 ---
 
@@ -157,13 +157,13 @@ IVIS delivers the complete platform AND manages all infrastructure, hosting, API
 
 No large upfront investment. The client pays a fixed monthly fee that covers everything — platform, hosting, APIs, maintenance, and support. IVIS manages all operations.
 
-**Setup Fee: BHD 1,500 ($3,975)** — one-time onboarding, customization, branding, data migration.
+**Setup Fee: BHD 1,500** — one-time onboarding, customization, branding, data migration.
 
-| Plan | Agents | Monthly (BHD) | Monthly ($) | Annual (BHD) | Annual ($) |
-|------|--------|--------------|-------------|-------------|-----------|
-| **Starter** | Up to 5 | BHD 500 | $1,325 | BHD 6,000 | $15,900 |
-| **Professional** | Up to 15 | BHD 750 | $1,988 | BHD 9,000 | $23,850 |
-| **Enterprise** | Unlimited | BHD 1,200 | $3,180 | BHD 14,400 | $38,160 |
+| Plan | Agents | Monthly | Annual |
+|------|--------|---------|--------|
+| **Starter** | Up to 5 | BHD 500 | BHD 6,000 |
+| **Professional** | Up to 15 | BHD 750 | BHD 9,000 |
+| **Enterprise** | Unlimited | BHD 1,200 | BHD 14,400 |
 
 **Minimum commitment:** 12 months.
 
@@ -187,19 +187,19 @@ No large upfront investment. The client pays a fixed monthly fee that covers eve
 
 **Year 1 Totals:**
 
-| Plan | Year 1 (BHD) | Year 1 ($) |
-|------|-------------|-----------|
-| Starter | BHD 7,500 | $19,875 |
-| Professional | BHD 10,500 | $27,825 |
-| Enterprise | BHD 15,900 | $42,135 |
+| Plan | Year 1 |
+|------|--------|
+| Starter | BHD 7,500 |
+| Professional | BHD 10,500 |
+| Enterprise | BHD 15,900 |
 
 **Year 2 Totals (no setup fee):**
 
-| Plan | Year 2 (BHD) | Year 2 ($) |
-|------|-------------|-----------|
-| Starter | BHD 6,000 | $15,900 |
-| Professional | BHD 9,000 | $23,850 |
-| Enterprise | BHD 14,400 | $38,160 |
+| Plan | Year 2 |
+|------|--------|
+| Starter | BHD 6,000 |
+| Professional | BHD 9,000 |
+| Enterprise | BHD 14,400 |
 
 ---
 
@@ -207,23 +207,23 @@ No large upfront investment. The client pays a fixed monthly fee that covers eve
 
 Ideal for brokerages and agencies that want to scale costs proportional to their team size. Each agent gets their own WhatsApp line, dashboard access, and listing quota.
 
-**Setup Fee: BHD 2,000 ($5,300)** — one-time onboarding, platform deployment, customization.
+**Setup Fee: BHD 2,000** — one-time onboarding, platform deployment, customization.
 
-| Component | BHD/Month | $/Month |
-|-----------|-----------|---------|
-| **Base Platform Fee** (hosting, AI, WhatsApp base, ops) | BHD 200 | $530 |
-| **Per Agent License** (dashboard access, WhatsApp line, listing quota) | BHD 45 | $119 |
+| Component | BHD/Month |
+|-----------|-----------|
+| **Base Platform Fee** (hosting, AI, WhatsApp base, ops) | BHD 200 |
+| **Per Agent License** (dashboard access, WhatsApp line, listing quota) | BHD 45 |
 
 **Monthly Cost by Team Size:**
 
-| Agents | Platform (BHD) | Agent Fees (BHD) | Monthly Total (BHD) | Monthly ($) |
-|--------|---------------|-----------------|--------------------|-----------|
-| 3 | 200 | 135 | **BHD 335** | **$888** |
-| 5 | 200 | 225 | **BHD 425** | **$1,126** |
-| 10 | 200 | 450 | **BHD 650** | **$1,723** |
-| 15 | 200 | 675 | **BHD 875** | **$2,319** |
-| 20 | 200 | 900 | **BHD 1,100** | **$2,915** |
-| 50 | 200 | 2,250 | **BHD 2,450** | **$6,493** |
+| Agents | Platform | Agent Fees | Monthly Total |
+|--------|----------|------------|---------------|
+| 3 | BHD 200 | BHD 135 | **BHD 335** |
+| 5 | BHD 200 | BHD 225 | **BHD 425** |
+| 10 | BHD 200 | BHD 450 | **BHD 650** |
+| 15 | BHD 200 | BHD 675 | **BHD 875** |
+| 20 | BHD 200 | BHD 900 | **BHD 1,100** |
+| 50 | BHD 200 | BHD 2,250 | **BHD 2,450** |
 
 **Volume Discounts:**
 
@@ -236,13 +236,13 @@ Ideal for brokerages and agencies that want to scale costs proportional to their
 
 **Year 1 Totals (10 Agents):**
 
-| Component | BHD | $ |
-|-----------|-----|---|
-| Setup | 2,000 | 5,300 |
-| 12 months × BHD 650 | 7,800 | 20,670 |
-| **Year 1 Total** | **BHD 9,800** | **$25,970** |
+| Component | BHD |
+|-----------|-----|
+| Setup | BHD 2,000 |
+| 12 months × BHD 650 | BHD 7,800 |
+| **Year 1 Total** | **BHD 9,800** |
 
-**Year 2 (10 Agents):** BHD 7,800 ($20,670)
+**Year 2 (10 Agents):** BHD 7,800
 
 **What's Included Per Agent:**
 
@@ -258,23 +258,23 @@ Ideal for brokerages and agencies that want to scale costs proportional to their
 
 Pay proportional to actual platform usage. Best for seasonal businesses, startups, or clients with unpredictable volumes.
 
-**Setup Fee: BHD 3,000 ($7,950)** — one-time platform deployment, integration, customization.
+**Setup Fee: BHD 3,000** — one-time platform deployment, integration, customization.
 
-| Component | Rate (BHD) | Rate ($) |
-|-----------|-----------|---------|
-| **Base Platform Fee** (infra + engineering support) | BHD 150/month | $398/month |
-| **Per Property Listed** (published to platform) | BHD 1.5/listing | $3.98/listing |
-| **Per WhatsApp Conversation** (24-hour session) | BHD 0.04/conversation | $0.11/conversation |
-| **Per AI Interaction** (chatbot query/response) | BHD 0.003/interaction | $0.008/interaction |
+| Component | Rate |
+|-----------|------|
+| **Base Platform Fee** (infra + engineering support) | BHD 150/month |
+| **Per Property Listed** (published to platform) | BHD 1.5/listing |
+| **Per WhatsApp Conversation** (24-hour session) | BHD 0.04/conversation |
+| **Per AI Interaction** (chatbot query/response) | BHD 0.003/interaction |
 
 **Monthly Cost Scenarios:**
 
-| Scenario | Listings | WhatsApp Convos | AI Interactions | Monthly (BHD) | Monthly ($) |
-|----------|----------|-----------------|-----------------|--------------|-------------|
-| **Low** (startup/new agency) | 50 | 500 | 5,000 | **BHD 260** | **$689** |
-| **Typical** (established agency) | 200 | 2,350 | 30,000 | **BHD 634** | **$1,680** |
-| **High** (large brokerage) | 500 | 5,000 | 100,000 | **BHD 1,400** | **$3,710** |
-| **Peak** (multi-branch enterprise) | 1,000 | 10,000 | 200,000 | **BHD 2,650** | **$7,023** |
+| Scenario | Listings | WhatsApp Convos | AI Interactions | Monthly Total |
+|----------|----------|-----------------|-----------------|---------------|
+| **Low** (startup/new agency) | 50 | 500 | 5,000 | **BHD 260** |
+| **Typical** (established agency) | 200 | 2,350 | 30,000 | **BHD 634** |
+| **High** (large brokerage) | 500 | 5,000 | 100,000 | **BHD 1,400** |
+| **Peak** (multi-branch enterprise) | 1,000 | 10,000 | 200,000 | **BHD 2,650** |
 
 *Calculation for Typical: BHD 150 + (200 × 1.5) + (2,350 × 0.04) + (30,000 × 0.003) = 150 + 300 + 94 + 90 = BHD 634*
 
@@ -282,13 +282,13 @@ Pay proportional to actual platform usage. Best for seasonal businesses, startup
 
 **Year 1 Total (Typical Usage):**
 
-| Component | BHD | $ |
-|-----------|-----|---|
-| Setup | 3,000 | 7,950 |
-| 12 months × BHD 634 | 7,608 | 20,161 |
-| **Year 1 Total** | **BHD 10,608** | **$28,111** |
+| Component | BHD |
+|-----------|-----|
+| Setup | BHD 3,000 |
+| 12 months × BHD 634 | BHD 7,608 |
+| **Year 1 Total** | **BHD 10,608** |
 
-**Year 2 (Typical Usage):** BHD 7,608 ($20,161)
+**Year 2 (Typical Usage):** BHD 7,608
 
 ---
 
@@ -296,16 +296,16 @@ Pay proportional to actual platform usage. Best for seasonal businesses, startup
 
 Comparison across all models assuming **10 agents** and **typical usage** (200 listings/month, 2,350 WhatsApp conversations/month, 30,000 AI interactions/month).
 
-| Model | Year 1 (BHD) | Year 2 (BHD) | Year 3 (BHD) | **3-Year TCO (BHD)** | **3-Year TCO ($)** |
-|-------|-------------|-------------|-------------|---------------------|-------------------|
-| **1A: Software Only (no AMC)** | 7,174 | 924 | 924 | **BHD 9,022** | **$23,908** |
-| **1A: Software Only + Standard AMC** | 8,554 | 2,304 | 2,304 | **BHD 13,162** | **$34,879** |
-| **1B: Turnkey (IVIS-Managed)** | 9,750 | 2,664 | 2,664 | **BHD 15,078** | **$39,957** |
-| **2: SaaS Professional** | 10,500 | 9,000 | 9,000 | **BHD 28,500** | **$75,525** |
-| **3: Per-Agent (10 agents)** | 9,800 | 7,800 | 7,800 | **BHD 25,400** | **$67,310** |
-| **4: Usage-Based (typical)** | 10,608 | 7,608 | 7,608 | **BHD 25,824** | **$68,434** |
+| Model | Year 1 | Year 2 | Year 3 | **3-Year TCO** |
+|-------|--------|--------|--------|----------------|
+| **1A: Software Only (no AMC)** | BHD 7,174 | BHD 924 | BHD 924 | **BHD 9,022** |
+| **1A: Software Only + Standard AMC** | BHD 8,554 | BHD 2,304 | BHD 2,304 | **BHD 13,162** |
+| **1B: Turnkey (IVIS-Managed)** | BHD 9,750 | BHD 2,664 | BHD 2,664 | **BHD 15,078** |
+| **2: SaaS Professional** | BHD 10,500 | BHD 9,000 | BHD 9,000 | **BHD 28,500** |
+| **3: Per-Agent (10 agents)** | BHD 9,800 | BHD 7,800 | BHD 7,800 | **BHD 25,400** |
+| **4: Usage-Based (typical)** | BHD 10,608 | BHD 7,608 | BHD 7,608 | **BHD 25,824** |
 
-**Visual Comparison — 3-Year TCO (BHD):**
+**Visual Comparison — 3-Year TCO:**
 
 ```
 1A (no AMC)          █████████                           BHD 9,022
@@ -352,18 +352,17 @@ Comparison across all models assuming **10 agents** and **typical usage** (200 l
 | Third-Party Services | BHD 6 | BHD 11 | BHD 6 |
 | Operational | BHD 57 | BHD 113 | BHD 113 |
 | **Monthly Total** | **BHD 105** | **BHD 194** | **BHD 207** |
-| **USD Equivalent** | **~$278/mo** | **~$514/mo** | **~$549/mo** |
 
 ### One-Time Setup Cost
 
-| Item | Cost (BHD) | Cost ($) |
-|------|-----------|----------|
-| Development (MVP to Production) | BHD 2,835 | $7,513 |
-| WhatsApp Business API Setup | BHD 189 | $500 |
-| Infrastructure Setup | BHD 113 | $300 |
-| Testing & QA | BHD 378 | $1,002 |
-| Documentation | BHD 132 | $350 |
-| **Total One-Time** | **BHD 3,647** | **$9,665** |
+| Item | Cost |
+|------|------|
+| Development (MVP to Production) | BHD 2,835 |
+| WhatsApp Business API Setup | BHD 189 |
+| Infrastructure Setup | BHD 113 |
+| Testing & QA | BHD 378 |
+| Documentation | BHD 132 |
+| **Total One-Time** | **BHD 3,647** |
 
 ---
 
@@ -371,39 +370,39 @@ Comparison across all models assuming **10 agents** and **typical usage** (200 l
 
 ### 3.1 Option A — Single VPS (Budget)
 
-| Item | Specification | Provider | Monthly (BHD) | Monthly ($) |
-|------|--------------|----------|--------------|-------------|
-| VPS Server | 4 vCPU, 8GB RAM, 100GB SSD | Hetzner / DigitalOcean | BHD 7.5 | $20 |
-| Bandwidth | 4 TB included | Included | BHD 0 | $0 |
-| Backup Storage | 20GB automated snapshots | Provider | BHD 1.9 | $5 |
-| SSL Certificate | Let's Encrypt | Free | BHD 0 | $0 |
-| **Subtotal** | | | **BHD 9.4** | **$25** |
+| Item | Specification | Provider | Monthly |
+|------|--------------|----------|---------|
+| VPS Server | 4 vCPU, 8GB RAM, 100GB SSD | Hetzner / DigitalOcean | BHD 7.5 |
+| Bandwidth | 4 TB included | Included | BHD 0 |
+| Backup Storage | 20GB automated snapshots | Provider | BHD 1.9 |
+| SSL Certificate | Let's Encrypt | Free | BHD 0 |
+| **Subtotal** | | | **BHD 9.4** |
 
 **Location:** EU (Hetzner Falkenstein/Helsinki) or Singapore for lower latency to Bahrain.
 
 ### 3.2 Option B — Multi-Server (Recommended)
 
-| Item | Specification | Qty | Monthly (BHD) | Monthly ($) |
-|------|--------------|-----|--------------|-------------|
-| App Server | 4 vCPU, 8GB RAM, 50GB SSD | 2 | BHD 15 | $40 |
-| DB Server | 2 vCPU, 4GB RAM, 100GB SSD | 1 | BHD 7.5 | $20 |
-| DB Replica | 2 vCPU, 4GB RAM, 50GB SSD | 1 | BHD 5.7 | $15 |
-| Object Storage | S3 — 50GB + transfers | 1 | BHD 1.9 | $5 |
-| Load Balancer | Managed LB | 1 | BHD 3.8 | $10 |
-| Backup Storage | Automated daily | 1 | BHD 1.9 | $5 |
-| **Subtotal** | | | **BHD 35.8** | **$95** |
+| Item | Specification | Qty | Monthly |
+|------|--------------|-----|---------|
+| App Server | 4 vCPU, 8GB RAM, 50GB SSD | 2 | BHD 15 |
+| DB Server | 2 vCPU, 4GB RAM, 100GB SSD | 1 | BHD 7.5 |
+| DB Replica | 2 vCPU, 4GB RAM, 50GB SSD | 1 | BHD 5.7 |
+| Object Storage | S3 — 50GB + transfers | 1 | BHD 1.9 |
+| Load Balancer | Managed LB | 1 | BHD 3.8 |
+| Backup Storage | Automated daily | 1 | BHD 1.9 |
+| **Subtotal** | | | **BHD 35.8** |
 
 ### 3.3 Option C — AWS Bahrain Region (me-south-1)
 
-| Service | Specification | Monthly (BHD) | Monthly ($) |
-|---------|--------------|--------------|-------------|
-| EC2 (App) | 2x t3.medium (2 vCPU, 4GB) | BHD 24.5 | $65 |
-| RDS (DB) | db.t3.micro, 20GB, Multi-AZ | BHD 13.2 | $35 |
-| S3 (Images) | 50GB Standard | BHD 0.5 | $1.15 |
-| CloudFront (CDN) | 100GB transfer | BHD 3.8 | $10 |
-| ALB | Application Load Balancer | BHD 7.5 | $20 |
-| Route 53 | Hosted zone | BHD 0.2 | $0.50 |
-| **Subtotal** | | **BHD 49.7** | **$131.65** |
+| Service | Specification | Monthly |
+|---------|--------------|---------|
+| EC2 (App) | 2x t3.medium (2 vCPU, 4GB) | BHD 24.5 |
+| RDS (DB) | db.t3.micro, 20GB, Multi-AZ | BHD 13.2 |
+| S3 (Images) | 50GB Standard | BHD 0.5 |
+| CloudFront (CDN) | 100GB transfer | BHD 3.8 |
+| ALB | Application Load Balancer | BHD 7.5 |
+| Route 53 | Hosted zone | BHD 0.2 |
+| **Subtotal** | | **BHD 49.7** |
 
 **Advantage of AWS me-south-1:** Data residency in Bahrain, lowest latency for local users, compliance with any future Bahrain data localization requirements.
 
@@ -417,43 +416,42 @@ Meta charges per **message** sent by the business. User-initiated service conver
 
 | Message Type | Cost per Message | Description |
 |-------------|-----------------|-------------|
-| **Marketing** | $0.0341 (~BHD 0.013) | Promotional messages, new listing alerts |
-| **Utility** | $0.0091 (~BHD 0.003) | Booking confirmations, listing status updates |
-| **Authentication** | $0.0091 (~BHD 0.003) | OTP verification |
+| **Marketing** | BHD 0.013 | Promotional messages, new listing alerts |
+| **Utility** | BHD 0.003 | Booking confirmations, listing status updates |
+| **Authentication** | BHD 0.003 | OTP verification |
 | **Service** | Free (unlimited) | User-initiated conversations, search, inquiries |
 
 ### 4.2 Monthly WhatsApp Cost Estimate
 
-| Activity | Messages/Month | Type | Cost ($) |
-|----------|---------------|------|----------|
-| User inquiries (search, browse) | 3,000+ | Service (free) | $0 |
-| New listing notifications | 400 | Marketing | $13.64 |
-| Price change alerts to searchers | 200 | Marketing | $6.82 |
-| Status updates (published, expired) | 300 | Utility | $2.73 |
-| Expiry reminders | 100 | Utility | $0.91 |
-| OTP verifications | 200 | Authentication | $1.82 |
-| **Monthly WhatsApp Total** | **~4,200** | | **$25.92** |
-| **BHD Equivalent** | | | **BHD 9.8** |
+| Activity | Messages/Month | Type | Cost (BHD) |
+|----------|---------------|------|------------|
+| User inquiries (search, browse) | 3,000+ | Service (free) | BHD 0 |
+| New listing notifications | 400 | Marketing | BHD 5.2 |
+| Price change alerts to searchers | 200 | Marketing | BHD 2.6 |
+| Status updates (published, expired) | 300 | Utility | BHD 0.9 |
+| Expiry reminders | 100 | Utility | BHD 0.3 |
+| OTP verifications | 200 | Authentication | BHD 0.6 |
+| **Monthly WhatsApp Total** | **~4,200** | | **BHD 9.6** |
 
 ### 4.3 WhatsApp Business Platform Fee
 
 | Item | Cost | Frequency |
 |------|------|-----------|
 | Meta Cloud API | Free (self-hosted) | — |
-| BSP fee (if using Twilio/360dialog) | $0–15/mo depending on BSP | Monthly |
+| BSP fee (if using Twilio/360dialog) | BHD 0–5.7/mo depending on BSP | Monthly |
 | WhatsApp Business Phone Number | Included with Meta verification | — |
-| **Estimated BSP/Platform Fee** | **~BHD 5.7 ($15)** | Monthly |
+| **Estimated BSP/Platform Fee** | **BHD 5.7** | Monthly |
 
 ### 4.4 Total WhatsApp Monthly Cost
 
-| Component | Monthly (BHD) | Monthly ($) |
-|-----------|--------------|-------------|
-| Message fees | BHD 9.8 | $25.92 |
-| BSP platform fee | BHD 5.7 | $15.00 |
-| Meta Business verification | Free | $0 |
-| **Total WhatsApp** | **BHD 15.5** | **~$40.92** |
+| Component | Monthly |
+|-----------|---------|
+| Message fees | BHD 9.6 |
+| BSP platform fee | BHD 5.7 |
+| Meta Business verification | Free |
+| **Total WhatsApp** | **BHD 15.3** |
 
-**Rounded estimate used in budget: BHD 19/month ($50)** — includes buffer for growth.
+**Rounded estimate used in budget: BHD 19/month** — includes buffer for growth.
 
 ---
 
@@ -468,24 +466,24 @@ Meta charges per **message** sent by the business. User-initiated service conver
 | Requests per day (est.) | 500–1,000 |
 | Monthly requests | 15,000–30,000 |
 
-| Tier | Requests/Month | Monthly ($) | Monthly (BHD) |
-|------|---------------|-------------|--------------|
-| Current (free/starter) | Up to 10,000 | $0 | BHD 0 |
-| Growth | 10,000–50,000 | $30 | BHD 11 |
-| Scale | 50,000–200,000 | $100 | BHD 38 |
+| Tier | Requests/Month | Monthly |
+|------|---------------|---------|
+| Current (free/starter) | Up to 10,000 | BHD 0 |
+| Growth | 10,000–50,000 | BHD 11 |
+| Scale | 50,000–200,000 | BHD 38 |
 
-**Estimated for 50–100 concurrent users:** BHD 11/month ($30)
+**Estimated for 50–100 concurrent users:** BHD 11/month
 
 ### 5.2 AI for Auto-Screening (Image Moderation + NLP)
 
-| Service | Usage | Monthly ($) | Monthly (BHD) |
-|---------|-------|-------------|--------------|
-| Image moderation API | ~200 listings × 3 images | $2–5 | BHD 1–2 |
-| Content screening (NLP) | ~200 listings | Included in AI API | BHD 0 |
-| OCR for ID verification | ~100 verifications | $1–3 | BHD 0.5–1 |
-| **AI Screening Subtotal** | | **~$5** | **~BHD 2** |
+| Service | Usage | Monthly |
+|---------|-------|---------|
+| Image moderation API | ~200 listings × 3 images | BHD 1–2 |
+| Content screening (NLP) | ~200 listings | BHD 0 (included in AI API) |
+| OCR for ID verification | ~100 verifications | BHD 0.5–1 |
+| **AI Screening Subtotal** | | **BHD 2** |
 
-**Total AI Monthly: BHD 13 ($35)** — rounded estimate used: **BHD 11** (screening covered by AI API quota).
+**Total AI Monthly: BHD 13** — rounded estimate used: **BHD 11** (screening covered by AI API quota).
 
 ---
 
@@ -493,23 +491,23 @@ Meta charges per **message** sent by the business. User-initiated service conver
 
 ### 6.1 Monthly Services
 
-| Service | Tier | Monthly (BHD) | Monthly ($) |
-|---------|------|--------------|-------------|
-| **Domain** | .bh domain or subdomain | BHD 0–2 | $0–5 |
-| **Cloudflare** | Free (CDN + DDoS + WAF) | BHD 0 | $0 |
-| **SSL** | Let's Encrypt (auto-renew) | BHD 0 | $0 |
-| **UptimeRobot** | Free (50 monitors) | BHD 0 | $0 |
-| **Sentry** | Free (5K errors/month) | BHD 0 | $0 |
-| **GitHub** | Free (private repos) | BHD 0 | $0 |
-| **SMS Gateway** (fallback for WhatsApp) | Twilio / local BH provider | BHD 3.8 | $10 |
-| **Email SMTP** | SendGrid (100 emails/day free) | BHD 0 | $0 |
-| **Analytics** | Google Analytics / Plausible | BHD 0–3.8 | $0–10 |
-| **Subtotal** | | **BHD 3.8–9.6** | **$10–25** |
+| Service | Tier | Monthly |
+|---------|------|---------|
+| **Domain** | .bh domain or subdomain | BHD 0–2 |
+| **Cloudflare** | Free (CDN + DDoS + WAF) | BHD 0 |
+| **SSL** | Let's Encrypt (auto-renew) | BHD 0 |
+| **UptimeRobot** | Free (50 monitors) | BHD 0 |
+| **Sentry** | Free (5K errors/month) | BHD 0 |
+| **GitHub** | Free (private repos) | BHD 0 |
+| **SMS Gateway** (fallback for WhatsApp) | Twilio / local BH provider | BHD 3.8 |
+| **Email SMTP** | SendGrid (100 emails/day free) | BHD 0 |
+| **Analytics** | Google Analytics / Plausible | BHD 0–3.8 |
+| **Subtotal** | | **BHD 3.8–9.6** |
 
 ### 6.2 One-Time Services
 
-| Service | Cost (BHD) |
-|---------|-----------|
+| Service | Cost |
+|---------|------|
 | .bh domain registration (if new) | BHD 19/year |
 | Meta Business Verification (WhatsApp) | Free |
 | WhatsApp Business Display Name approval | Free |
@@ -520,8 +518,8 @@ Meta charges per **message** sent by the business. User-initiated service conver
 
 ### 7.1 MVP to Production (One-Time)
 
-| Task | Hours | Rate (BHD/hr) | Cost (BHD) |
-|------|-------|---------------|-----------|
+| Task | Hours | Rate/hr | Cost |
+|------|-------|---------|------|
 | **Backend Development** | | | |
 | PostgreSQL migration (JSON → DB) | 16 | BHD 19 | BHD 304 |
 | S3 image upload integration | 12 | BHD 19 | BHD 228 |
@@ -547,12 +545,12 @@ Meta charges per **message** sent by the business. User-initiated service conver
 | Monitoring & alerting setup | 4 | BHD 19 | BHD 76 |
 | **Subtotal Development** | **232 hrs** | | **BHD 4,098** |
 
-*Rate: BHD 19/hr ≈ $50/hr — competitive offshore development rate*
+*Rate: BHD 19/hr — competitive offshore development rate*
 
 ### 7.2 Testing & QA (One-Time)
 
-| Task | Hours | Rate (BHD/hr) | Cost (BHD) |
-|------|-------|---------------|-----------|
+| Task | Hours | Rate/hr | Cost |
+|------|-------|---------|------|
 | Unit testing | 12 | BHD 15 | BHD 180 |
 | Integration testing (WhatsApp flow) | 12 | BHD 15 | BHD 180 |
 | Arabic language testing | 8 | BHD 15 | BHD 120 |
@@ -562,8 +560,8 @@ Meta charges per **message** sent by the business. User-initiated service conver
 
 ### 7.3 Documentation (One-Time)
 
-| Task | Cost (BHD) |
-|------|-----------|
+| Task | Cost |
+|------|------|
 | API documentation | BHD 57 |
 | Deployment runbook | BHD 38 |
 | User guide (English + Arabic) | BHD 57 |
@@ -576,8 +574,8 @@ Meta charges per **message** sent by the business. User-initiated service conver
 
 ### 8.1 Monthly Maintenance
 
-| Item | Hours/Month | Rate (BHD/hr) | Monthly (BHD) |
-|------|------------|---------------|--------------|
+| Item | Hours/Month | Rate/hr | Monthly |
+|------|------------|---------|---------|
 | Server maintenance & updates | 2 | BHD 19 | BHD 38 |
 | Bug fixes & minor improvements | 4 | BHD 19 | BHD 76 |
 | WhatsApp template management | 1 | BHD 19 | BHD 19 |
@@ -591,8 +589,8 @@ Meta charges per **message** sent by the business. User-initiated service conver
 
 With the AI auto-screening model (95% automated), human intervention is minimal:
 
-| Activity | Est. Hours/Month | Rate (BHD/hr) | Monthly (BHD) |
-|----------|-----------------|---------------|--------------|
+| Activity | Est. Hours/Month | Rate/hr | Monthly |
+|----------|-----------------|---------|---------|
 | Review flagged listings (~5% of submissions) | 2 | BHD 8 | BHD 16 |
 | Handle ownership verification edge cases | 1 | BHD 8 | BHD 8 |
 | Respond to user escalations | 1 | BHD 8 | BHD 8 |
@@ -606,16 +604,16 @@ With the AI auto-screening model (95% automated), human intervention is minimal:
 
 ### Complete Breakdown
 
-| Category | Cost (BHD) | Cost ($) |
-|----------|-----------|----------|
-| Backend Development | BHD 2,280 | $6,042 |
-| Frontend Development | BHD 1,140 | $3,021 |
-| AI Integration | BHD 684 | $1,813 |
-| DevOps & Infrastructure | BHD 494 | $1,309 |
-| WhatsApp Business API Integration | BHD 760 | $2,014 |
-| Testing & QA | BHD 690 | $1,829 |
-| Documentation | BHD 190 | $504 |
-| **Total One-Time** | **BHD 6,238** | **$16,531** |
+| Category | Cost |
+|----------|------|
+| Backend Development | BHD 2,280 |
+| Frontend Development | BHD 1,140 |
+| AI Integration | BHD 684 |
+| DevOps & Infrastructure | BHD 494 |
+| WhatsApp Business API Integration | BHD 760 |
+| Testing & QA | BHD 690 |
+| Documentation | BHD 190 |
+| **Total One-Time** | **BHD 6,238** |
 
 ---
 
@@ -623,8 +621,8 @@ With the AI auto-screening model (95% automated), human intervention is minimal:
 
 ### Option B (Recommended) — Detailed Breakdown
 
-| # | Line Item | Monthly (BHD) | % of Total |
-|---|-----------|--------------|-----------|
+| # | Line Item | Monthly | % of Total |
+|---|-----------|---------|-----------|
 | | **INFRASTRUCTURE** | | |
 | 1 | App Server 1 (4 vCPU, 8GB RAM) | BHD 7.5 | 3.3% |
 | 2 | App Server 2 (4 vCPU, 8GB RAM) | BHD 7.5 | 3.3% |
@@ -636,9 +634,9 @@ With the AI auto-screening model (95% automated), human intervention is minimal:
 | | **Infrastructure Subtotal** | **BHD 35.8** | **15.8%** |
 | | | | |
 | | **WHATSAPP BUSINESS API** | | |
-| 8 | Message fees (marketing + utility + auth) | BHD 9.8 | 4.3% |
+| 8 | Message fees (marketing + utility + auth) | BHD 9.6 | 4.2% |
 | 9 | BSP platform fee | BHD 5.7 | 2.5% |
-| | **WhatsApp Subtotal** | **BHD 15.5** | **6.8%** |
+| | **WhatsApp Subtotal** | **BHD 15.3** | **6.7%** |
 | | | | |
 | | **AI / API** | | |
 | 10 | IVIS LABS Chat API (30K req/mo) | BHD 11 | 4.9% |
@@ -666,9 +664,7 @@ With the AI auto-screening model (95% automated), human intervention is minimal:
 | 23 | User escalations (1 hr) | BHD 8 | 3.5% |
 | | **Human Agent Subtotal** | **BHD 32** | **14.1%** |
 | | | | |
-| | | | |
 | | **GRAND TOTAL** | **BHD 218** | **100%** |
-| | **USD Equivalent** | **~$578** | |
 
 ### Cost Distribution
 
@@ -676,12 +672,12 @@ With the AI auto-screening model (95% automated), human intervention is minimal:
 Operations (Engineering)  █████████████████████████  49.8%  (BHD 113)
 Infrastructure            ████████                   15.8%  (BHD 35.8)
 Human Agent (exceptions)  ███████                    14.1%  (BHD 32)
-WhatsApp Business API     ███                         6.8%  (BHD 15.5)
+WhatsApp Business API     ███                         6.7%  (BHD 15.3)
 AI / API                  ███                         5.7%  (BHD 13)
 Third-Party Services      ██                          4.0%  (BHD 9.1)
-Buffer                    ██                          3.8%  (BHD 9)
+Buffer                    ██                          3.9%  (BHD 9)
                           ─────────────────────────────────
-                          Total: ~BHD 227/month (~$601)
+                          Total: ~BHD 227/month
 ```
 
 ---
@@ -690,8 +686,8 @@ Buffer                    ██                          3.8%  (BHD 9)
 
 ### Year 1 — Full Breakdown
 
-| Quarter | Setup (BHD) | Infra (BHD) | WhatsApp (BHD) | AI (BHD) | Ops (BHD) | Agent (BHD) | Services (BHD) | Quarterly (BHD) |
-|---------|------------|-------------|----------------|---------|-----------|------------|----------------|-----------------|
+| Quarter | Setup | Infra | WhatsApp | AI | Ops | Agent | Services | Quarterly Total |
+|---------|-------|-------|----------|-----|-----|-------|----------|-----------------|
 | Q1 (Setup) | BHD 6,238 | BHD 28 | BHD 50 | BHD 33 | BHD 171 | BHD 48 | BHD 27 | **BHD 6,595** |
 | Q2 (Growth) | — | BHD 107 | BHD 50 | BHD 33 | BHD 339 | BHD 96 | BHD 27 | **BHD 652** |
 | Q3 (Scale) | — | BHD 107 | BHD 67 | BHD 39 | BHD 339 | BHD 96 | BHD 27 | **BHD 675** |
@@ -700,10 +696,10 @@ Buffer                    ██                          3.8%  (BHD 9)
 *Q1 includes one-time setup cost of BHD 6,238*
 *Q3-Q4: WhatsApp costs increase slightly as user base grows*
 
-| | Annual (BHD) | Annual ($) |
-|---|-------------|-----------|
-| **Year 1 Total** | **BHD 8,597** | **~$22,782** |
-| **Year 2 Projected (recurring only)** | **BHD 2,700** | **~$7,155** |
+| | Annual |
+|---|--------|
+| **Year 1 Total** | **BHD 8,597** |
+| **Year 2 Projected (recurring only)** | **BHD 2,700** |
 
 ### Per-User Cost Analysis
 
@@ -711,10 +707,10 @@ Buffer                    ██                          3.8%  (BHD 9)
 |--------|-------|
 | Monthly active users (est.) | 500–1,000 |
 | Monthly cost (recurring) | BHD 227 |
-| **Cost per active user** | **BHD 0.23–0.45/month ($0.60–1.20)** |
-| Cost per property listed | ~BHD 0.5 ($1.30) |
-| Cost per AI interaction | ~BHD 0.001 ($0.002) |
-| Cost per WhatsApp message | ~BHD 0.003–0.013 ($0.009–0.034) |
+| **Cost per active user** | **BHD 0.23–0.45/month** |
+| Cost per property listed | BHD 0.5 |
+| Cost per AI interaction | BHD 0.001 |
+| Cost per WhatsApp message | BHD 0.003–0.013 |
 
 ---
 
@@ -743,8 +739,8 @@ Buffer                    ██                          3.8%  (BHD 9)
 
 ### Phase 1: MVP Launch (Month 1–2)
 
-| Item | Cost (BHD) |
-|------|-----------|
+| Item | Cost |
+|------|------|
 | Development (one-time) | BHD 6,238 |
 | Single VPS (Option A — 2 months) | BHD 19 |
 | WhatsApp Business API setup + 2 months | BHD 227 |
@@ -753,8 +749,8 @@ Buffer                    ██                          3.8%  (BHD 9)
 
 ### Phase 2: Production Hardening (Month 3–4)
 
-| Item | Cost (BHD) |
-|------|-----------|
+| Item | Cost |
+|------|------|
 | PostgreSQL migration | BHD 304 |
 | S3 integration | BHD 228 |
 | Multi-server setup (Option B) — 2 months infra | BHD 72 |
@@ -765,8 +761,8 @@ Buffer                    ██                          3.8%  (BHD 9)
 
 ### Phase 3: Scale & Optimize (Month 5–6)
 
-| Item | Cost (BHD) |
-|------|-----------|
+| Item | Cost |
+|------|------|
 | Redis caching layer | BHD 152 |
 | Arabic NLU fine-tuning | BHD 304 |
 | CDN optimization | BHD 76 |
@@ -777,8 +773,8 @@ Buffer                    ██                          3.8%  (BHD 9)
 
 ### Phase 4: Steady State (Month 7+)
 
-| Item | Monthly (BHD) | Annual (BHD) |
-|------|--------------|-------------|
+| Item | Monthly | Annual |
+|------|---------|--------|
 | Infrastructure | BHD 36 | BHD 432 |
 | WhatsApp Business API | BHD 19 | BHD 228 |
 | AI API | BHD 13 | BHD 156 |
@@ -791,14 +787,14 @@ Buffer                    ██                          3.8%  (BHD 9)
 
 ### Total Investment Summary
 
-| Period | Cost (BHD) | Cost ($) |
-|--------|-----------|----------|
-| Phase 1 — MVP Launch (2 months) | BHD 6,506 | $17,241 |
-| Phase 2 — Production (2 months) | BHD 1,040 | $2,756 |
-| Phase 3 — Scale (2 months) | BHD 864 | $2,290 |
-| Phase 4 — Year 1 remainder (6 months) | BHD 1,332 | $3,530 |
-| **Year 1 Grand Total** | **BHD 9,742** | **$25,817** |
-| **Year 2 (recurring only)** | **BHD 2,664** | **$7,060** |
+| Period | Cost |
+|--------|------|
+| Phase 1 — MVP Launch (2 months) | BHD 6,506 |
+| Phase 2 — Production (2 months) | BHD 1,040 |
+| Phase 3 — Scale (2 months) | BHD 864 |
+| Phase 4 — Year 1 remainder (6 months) | BHD 1,332 |
+| **Year 1 Grand Total** | **BHD 9,742** |
+| **Year 2 (recurring only)** | **BHD 2,664** |
 
 ---
 
@@ -806,19 +802,18 @@ Buffer                    ██                          3.8%  (BHD 9)
 
 | Assumption | Value |
 |-----------|-------|
-| Currency conversion | 1 BHD = $2.65 USD |
 | WhatsApp messages/month | ~1,200 outbound (service inbound is free & unlimited) |
 | New property listings/month | ~50–200 |
 | Monthly active users | 500–1,000 |
 | AI requests/month | 15,000–30,000 |
-| Development rate | BHD 19/hr ($50/hr) |
-| Human agent rate | BHD 8/hr ($21/hr) |
+| Development rate | BHD 19/hr |
+| Human agent rate | BHD 8/hr |
 | Human agent hours needed | ~4 hrs/month (minimal intervention model) |
 
 ---
 
 *Pricing estimates as of February 2026. Actual costs may vary based on provider, region, and usage patterns.*
 *WhatsApp Business API pricing based on Meta's per-message rates for Middle East (effective July 2025).*
-*All rates reflect Bahrain market deployment.*
+*All rates reflect Bahrain market deployment. All amounts in Bahraini Dinar (BHD).*
 
 *Document prepared by IVIS LABS Engineering Team — February 2026*
